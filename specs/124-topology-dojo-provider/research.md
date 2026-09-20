@@ -24,7 +24,29 @@ boundary that today does not exist even between draw.io and the 3D tools
 that already name draw.io. Spec 121's pattern — one entry point, provenance reported in the
 response — is reused for the mode (hosted/local) rather than for provider selection.
 
-## R2: Hosted authentication is OAuth 2.1 + GitHub, with no API-key path (satisfies FR-010/011)
+## R2: Hosted authentication is OAuth 2.1 + GitHub; an API-key path now exists behind a flag (satisfies FR-010/011)
+
+**Update 2026-09-20 (supersedes the bridge-first decision below).** Topology Dojo proposal 0005
+(`docs/proposals/0005-api-key-auth.md`, robertsonc/topology-dojo#247) adds user-tied API keys:
+a signed-in user mints a scoped, optionally expiring `tdk_…` key at `/keys`, and the OAuth
+provider's `resolveExternalToken` hook resolves it to the same `{id, login, name}` props a grant
+produces, so drafts, workspaces, quotas and share ownership are the user's own. It is gated by
+`API_KEYS_ENABLED` (staging on, production after its UAT-MCP-04). With it, the registration is the
+Globalping shape and no bridge is involved:
+
+```json
+"topology-dojo-mcp": {
+  "url": "${TOPOLOGY_DOJO_MCP_URL:-https://topology-dojo.harnessed.cloud/mcp}",
+  "headers": { "Authorization": "Bearer ${TOPOLOGY_DOJO_API_KEY}" },
+  "env": { "TOPOLOGY_DOJO_API_KEY": "${TOPOLOGY_DOJO_API_KEY}" }
+}
+```
+
+Scopes map onto the stories: none beyond the implicit `author` for US1/US2, `share` for US3,
+`workspace` for US4; `live-data` is never needed by this skill. The bridge described next remains
+the fallback for a deployment that has not enabled the feature, and the skill is identical either
+way. Everything below this line was true at commit `4dddaca` and is kept as the record of why the
+upstream change was made.
 
 `worker/index.ts:50-57` wraps the whole Worker in Cloudflare's `workers-oauth-provider` with
 `apiRoute: '/mcp'`, `/authorize`, `/token`, `/register` (dynamic client registration) and
@@ -289,7 +311,13 @@ recorded in `contracts/topology-dojo-mcp.md`). An opt-in live-local check, gated
 `scripts/mcp-call.py` for `import_topology → validate_topology → render_svg` on a fixture. It is
 declared under `live` in `tests/contract-suites.json`, never in the default path.
 
-## R13: Registering a Remote/OAuth integration is a declared exception to `docs/ADDING-AN-MCP.md`
+## R13: Registering a remote integration is a declared classification against `docs/ADDING-AN-MCP.md`
+
+**Update 2026-09-20.** With the API-key path (R2 update) the entry is a bearer-token remote
+exactly like `globalping-mcp` and `topolograph-mcp`, which the repo registers today. The
+classification below still holds — the guide's table literally says Remote/OAuth stays external —
+so the spec keeps declaring it rather than claiming unqualified adherence; the bridge-specific
+reason (3) applies only to the fallback form.
 
 `docs/ADDING-AN-MCP.md:30-42` says Remote/OAuth integrations get **no** `config/openclaw.json`
 entry and are recorded in `EXTERNAL_INTEGRATIONS` with reason `remote/OAuth` (examples given:

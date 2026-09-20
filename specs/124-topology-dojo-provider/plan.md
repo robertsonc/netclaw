@@ -7,7 +7,9 @@
 
 Add Topology Dojo (`robertsonc/topology-dojo`) as a second topology-documentation target beside
 `drawio-diagram`. One registered MCP server key (`topology-dojo-mcp`) reaches the hosted
-deployment through the `mcp-remote` OAuth bridge NetClaw already ships, or — in local mode — a
+deployment with a user-minted Topology Dojo API key by variable reference (the Globalping shape;
+Topology Dojo proposal 0005), with the `mcp-remote` OAuth bridge NetClaw already ships as the
+fallback for deployments without that feature, or — in local mode — a
 git-cloned stdio server. One new skill, `topology-dojo-diagram`, owns the discover → convert →
 load → validate → tidy → inspect → render → persist loop, and its one piece of real code,
 `dojo_document.py` behind an explicit `snapshot_adapter.py`, deterministically converts NetClaw's
@@ -27,12 +29,13 @@ exception to `docs/ADDING-AN-MCP.md` (research R13).
 **Language/Version**: Python 3.10+ for the converter and tests (stdlib only, matching every
 `scripts/*.py`); Bash for the installer step; Markdown for SKILL/SOUL/TOOLS. No TypeScript is
 written or vendored.
-**Primary Dependencies**: `mcp-remote@0.14.2` (npm, MIT — already a NetClaw package reference);
+**Primary Dependencies**: none for the hosted API-key path (a `url` entry). Fallback only:
+`mcp-remote@0.14.2` (npm, MIT — already a NetClaw package reference);
 Node.js 18+ / npm (already required for a dozen npx integrations); Topology Dojo's own
 `npm ci` in local mode only, run by the operator on their own clone. No new Python packages.
 **Storage**: N/A — timestamped artifacts under `workspace/output/topology-dojo/` (gitignored,
-spec 046 convention) and GAIT records. The `mcp-remote` token cache at `~/.mcp-auth/` is the
-bridge's own state, not NetClaw's.
+spec 046 convention) and GAIT records. In the fallback, the `mcp-remote` token cache at
+`~/.mcp-auth/` is the bridge's own state, not NetClaw's.
 **Testing**: `tests/topology-dojo/run-tests.sh` (shell suite, offline) wrapping stdlib
 `unittest` files for the converter plus registration/SKILL.md assertions; opt-in live-local check
 via `TOPOLOGY_DOJO_DIR`. Declared in `tests/contract-suites.json`.
@@ -79,7 +82,9 @@ site metadata and exceeds ~40 devices.
   `mcp-servers/<name>/README.md` is N/A and the operator-facing install notes live in the
   SKILL.md and TOOLS.md sections instead (recorded in Complexity Tracking).
 - **XIII (Credential Safety)**: New variables are `TOPOLOGY_DOJO_MCP_URL`, `TOPOLOGY_DOJO_MODE`,
-  `TOPOLOGY_DOJO_DIR` — none is a secret. The OAuth tokens live in `mcp-remote`'s cache; the
+  `TOPOLOGY_DOJO_DIR`, and the one secret, `TOPOLOGY_DOJO_API_KEY`, referenced only by name in
+  `config/openclaw.json` and documented in `.env.example` without a value. In the fallback the
+  OAuth tokens live in `mcp-remote`'s cache; the
   SKILL.md names the path and how to revoke. `.env.example` gets names and descriptions only.
 - **XIV (Human-in-the-Loop for External Communications)**: `share_topology` publishes to the
   public internet; it is confirmation-gated per invocation with a code-level `confirmed` guard
@@ -113,7 +118,7 @@ specs/124-topology-dojo-provider/
 ### Source Code (repository root)
 
 ```text
-config/openclaw.json                         # + "topology-dojo-mcp" (npx mcp-remote bridge, repo-relative, no secrets)
+config/openclaw.json                         # + "topology-dojo-mcp" (url + Bearer ${TOPOLOGY_DOJO_API_KEY}; bridge form only as fallback)
 
 workspace/skills/topology-dojo-diagram/      # NEW skill
 ├── SKILL.md                                 # modes, loop, routing boundary, share gate, workspace path
@@ -157,7 +162,7 @@ converter lives in the skill directory, the same placement spec 120/122 use for
 | Research | Decision |
 |---|---|
 | R1 | peer skill, no provider abstraction, boundary prose in SOUL + four SKILL.md files |
-| R2 | hosted = `npx -y mcp-remote@0.14.2 <url>`; one unverified item (native OAuth in OpenClaw) checked by T005 before wiring is finalized |
+| R2 | hosted = `url` + `Bearer ${TOPOLOGY_DOJO_API_KEY}` (Topology Dojo proposal 0005, gated by its `API_KEYS_ENABLED`); `npx -y mcp-remote@0.14.2 <url>` only as the fallback; T005 confirms which form the target deployment supports |
 | R3 | local = operator-supplied clone (`TOPOLOGY_DOJO_DIR`) + `npm run --silent mcp`, verified and registered by the installer, no network; clone-at-install gated on R9 |
 | R4/R5 | explicit adapter over the real dataclasses + optional link overlay; link identity precedence (link_id → interface pair → flagged fallback); stable document identity; diff via `get_topology(pageIndex)` with counters derived locally; tier placement; no auto re-layout on sync |
 | R6 | share gate: fetch current document → recursive address scan → confirm → publish → GAIT; default deliverable is local files |
@@ -172,7 +177,7 @@ converter lives in the skill directory, the same placement spec 120/122 use for
 
 | Item | Why it is needed | Simpler alternative rejected because |
 |---|---|---|
-| `mcp-remote` bridge instead of a plain `url` entry | hosted endpoint is OAuth-only (R2) | a bare `url` cannot authenticate unless OpenClaw does DCR natively — unverified; T005 may remove the bridge |
+| `mcp-remote` bridge kept as a fallback form | a deployment without `API_KEYS_ENABLED` is OAuth-only (R2) | dropping it would leave self-hosted or not-yet-activated deployments with no unattended path at all |
 | Two connection modes | air-gapped labs and contributors without a GitHub identity (US5) | hosted-only would make the offline contract suite the only way to exercise the converter end to end |
 | A Python converter rather than prompt-driven `add_node` calls | 200-op batches, idempotent identities, deterministic tests (R4/R5) | prompt-driven authoring cannot be tested offline and burns the per-turn tool budget Topology Dojo's own README warns about |
 | No `mcp-servers/<name>/README.md` | no directory exists to hold it (R9) | a README without a server misleads `verify-catalog-coverage.py`'s vendored-state check; the operator notes live in SKILL.md and TOOLS.md |
@@ -186,8 +191,8 @@ converter lives in the skill directory, the same placement spec 120/122 use for
 2. Expose the existing browser-only draw.io XML export (`src/editor/drawio.ts`) as an
    `export_drawio` MCP tool, so a Topology Dojo document can be handed to the existing
    `drawio-diagram` pipeline for Confluence/Visio consumers.
-3. Consider a headless-friendly credential path (a per-user personal access token scoped to
-   `/mcp`) so unattended agents on servers do not need the browser OAuth hop; until then
-   `mcp-remote` + SSH port-forward is the documented route.
+3. ~~A headless-friendly credential path~~ — done: proposal 0005 / robertsonc/topology-dojo#247
+   (user-tied, scoped API keys behind `API_KEYS_ENABLED`); production activation pending its
+   UAT-MCP-04.
 4. Document the MCP client config for the hosted endpoint (today only the stdio snippet exists in
    `src/mcp/README.md`).

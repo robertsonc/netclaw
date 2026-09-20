@@ -53,7 +53,8 @@ All eleven findings verified against primary sources and addressed in the artifa
 
 ## Open items carried into implementation
 
-- [ ] research R2: native OAuth in OpenClaw's MCP client — verified by T005
+- [ ] research R2: the target deployment has `API_KEYS_ENABLED` active (Topology Dojo #247
+      merged and production flipped) — verified by T005; bridge form until then
 - [ ] research R7: `upsert_by_source` inside workspace proposals — verified by T006
 - [ ] Topology Dojo license — requested in the PR (research R9); not a blocker for the hosted
       mode or for the converter, a blocker for calling local mode a first-class install

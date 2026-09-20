@@ -3,10 +3,13 @@
 ## Prerequisites
 
 - Node.js 18+ and npm (`npx` is how the bridge and the local server both start).
-- **Hosted mode** (default): a GitHub account. The first tool call opens a browser window for the
-  Topology Dojo OAuth flow once; tokens are cached by `mcp-remote` under `~/.mcp-auth/`. On a
-  headless host, forward the callback port first:
-  `ssh -L 3334:localhost:3334 <host>` then `npx -y mcp-remote@0.14.2 https://topology-dojo.harnessed.cloud/mcp 3334`.
+- **Hosted mode** (default): sign in to Topology Dojo with GitHub once, open `/keys`, mint a key
+  with the scopes you need (`share` for public links, `workspace` for proposals), and put it in
+  `.env` as `TOPOLOGY_DOJO_API_KEY`. No browser is needed on the NetClaw host. If the deployment
+  has not enabled API keys, the `mcp-remote` fallback applies: the first tool call opens a browser
+  for the OAuth flow once and caches tokens under `~/.mcp-auth/`; on a headless host, forward the
+  callback port first (`ssh -L 3334:localhost:3334 <host>` then
+  `npx -y mcp-remote@0.14.2 https://topology-dojo.harnessed.cloud/mcp 3334`).
 - **Local mode**: `TOPOLOGY_DOJO_MODE=local` and `TOPOLOGY_DOJO_DIR` pointing at your own clone
   of `robertsonc/topology-dojo` with `npm ci` already run (on an air-gapped host, pre-stage the
   clone with its `node_modules` from a connected machine of the same platform). The installer

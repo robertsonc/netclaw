@@ -19,10 +19,12 @@
   same files that name draw.io today. See research.md R1.
 - Q: Topology Dojo's hosted MCP endpoint is OAuth 2.1 with GitHub as the identity provider and has
   no API-key path. How does an unattended NetClaw authenticate? → A: **Two connection modes, one
-  registered server key.** Hosted mode (default) goes through the `mcp-remote` stdio bridge NetClaw
-  already ships for IP Fabric and ThousandEyes; it completes the OAuth flow once interactively and
-  caches tokens on disk. Local mode runs Topology Dojo's own unauthenticated stdio server from a
-  clone the operator supplies. See research.md R2/R3.
+  registered server key.** Hosted mode (default) authenticates with a user-minted Topology Dojo
+  API key sent as a bearer header (Topology Dojo proposal 0005, PR #247), the same shape NetClaw
+  uses for Globalping and Topolograph. Until a deployment enables that feature, the `mcp-remote`
+  stdio bridge NetClaw already ships for IP Fabric and ThousandEyes is the fallback: it completes
+  the OAuth flow once interactively and caches tokens on disk. Local mode runs Topology Dojo's own
+  unauthenticated stdio server from a clone the operator supplies. See research.md R2/R3.
 - Q: `share_topology` publishes a public, unauthenticated 30-day snapshot. Is that an "external
   communication" under Constitution Principle XIV? → A: **Yes.** Sharing is opt-in, requires
   explicit per-invocation confirmation in the same conversation, produces a GAIT record
@@ -298,9 +300,12 @@ files, and `document-generation`'s routing table.
 - **FR-010**: The system MUST support two connection modes selected by configuration — hosted
   (default, the maintainer's deployment or any self-hosted deployment URL) and local (a stdio
   server run from an operator-supplied clone) — under one registered server key.
-- **FR-011**: In hosted mode, authentication MUST use the deployment's OAuth flow through the
-  `mcp-remote` bridge; no token, client secret, or cookie is ever stored in a tracked file, and the
-  system MUST name the bridge's cached-credential location so an operator can revoke it.
+- **FR-011**: In hosted mode, authentication MUST use a user-minted Topology Dojo API key
+  referenced by variable name (`TOPOLOGY_DOJO_API_KEY`) in a bearer header, never a literal in a
+  tracked file. Where the deployment has not enabled API keys, the system MUST fall back to the
+  deployment's OAuth flow through the `mcp-remote` bridge and MUST name the bridge's
+  cached-credential location so an operator can revoke it. The skill MUST tell the operator which
+  scopes the key needs per story (`share` for US3, `workspace` for US4; none for US1/US2).
 - **FR-012**: Publishing a public share link MUST require explicit confirmation in the same
   conversation, MUST be preceded by a recursive scan of the current server-side canonical
   document, fetched immediately before the publish call, across every string field (first-class
@@ -374,7 +379,8 @@ files, and `document-generation`'s routing table.
   invocation; the contract suite asserts the skill language and the GAIT requirement.
 - **SC-005**: `scripts/reconcile-mcp.py` exits 0 on the PR branch; `scripts/verify-spec-artifacts.py`
   passes; `scripts/run-contract-tests.py --suite topology-dojo --prepare` passes offline.
-- **SC-006**: `git grep` finds no OAuth token, client secret, or share URL in any tracked file.
+- **SC-006**: `git grep` finds no OAuth token, client secret, `tdk_` API key, or share URL in any
+  tracked file.
 - **SC-007**: A reviewer reading SOUL.md can state, without opening a SKILL.md, when NetClaw picks
   Topology Dojo over draw.io.
 - **SC-008**: `scripts/check-server-startup.py --only topology-dojo-mcp` reports no fatal finding
@@ -384,9 +390,12 @@ files, and `document-generation`'s routing table.
 
 - The maintainer's hosted deployment at `https://topology-dojo.harnessed.cloud/mcp` remains the
   default URL; operators can point `TOPOLOGY_DOJO_MCP_URL` at a self-hosted deployment or staging.
-- OpenClaw's gateway MCP client is not assumed to perform OAuth 2.1 dynamic client registration
-  natively; the `mcp-remote` bridge is used because NetClaw already relies on it. If native support
-  is verified during implementation, the bridge can be dropped without changing the skill.
+- Topology Dojo's API key feature (proposal 0005, robertsonc/topology-dojo#247) is enabled on the
+  deployment NetClaw targets; until production activates it, the `mcp-remote` OAuth bridge is the
+  documented fallback and the skill does not change between the two.
+- OpenClaw's gateway MCP client supports `url` entries with a static `headers.Authorization`
+  (precedent: `globalping-mcp`, `meraki-mcp`, `topolograph-mcp`); native OAuth dynamic client
+  registration is not assumed.
 - Topology Dojo's tool surface as of commit `4dddaca` (57 tool definitions; 34 available on the
   local stdio server) is the contract; the skill uses a documented subset (see
   `contracts/topology-dojo-mcp.md`).

@@ -1,17 +1,21 @@
 # Contract: `topology-dojo-mcp` as used by `topology-dojo-diagram`
 
-**Registered key**: `topology-dojo-mcp` in `config/openclaw.json`. Hosted form (tracked):
+**Registered key**: `topology-dojo-mcp` in `config/openclaw.json`. Hosted form (tracked) — a
+user-minted Topology Dojo API key (proposal 0005) by variable reference, the Globalping shape:
 
 ```json
 "topology-dojo-mcp": {
-  "command": "npx",
-  "args": ["-y", "mcp-remote@0.14.2", "${TOPOLOGY_DOJO_MCP_URL:-https://topology-dojo.harnessed.cloud/mcp}"],
-  "env": { "TOPOLOGY_DOJO_MCP_URL": "${TOPOLOGY_DOJO_MCP_URL:-https://topology-dojo.harnessed.cloud/mcp}" }
+  "url": "${TOPOLOGY_DOJO_MCP_URL:-https://topology-dojo.harnessed.cloud/mcp}",
+  "headers": { "Authorization": "Bearer ${TOPOLOGY_DOJO_API_KEY}" },
+  "env": { "TOPOLOGY_DOJO_API_KEY": "${TOPOLOGY_DOJO_API_KEY}" }
 }
 ```
 
-Registering a Remote/OAuth integration here is a declared exception to `docs/ADDING-AN-MCP.md`
-(research R13).
+Fallback for a deployment without `API_KEYS_ENABLED` (written by the installer when the operator
+chooses it, research R2): `{"command": "npx", "args": ["-y", "mcp-remote@0.14.2", "<url>"]}`.
+
+Registering a remote integration here is a declared classification against
+`docs/ADDING-AN-MCP.md` (research R13).
 
 Local form (written by the installer with `openclaw mcp set` from an operator-supplied clone at
 `TOPOLOGY_DOJO_DIR`, never tracked — path is user-specific):

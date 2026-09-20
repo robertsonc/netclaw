@@ -30,19 +30,20 @@ R2 and R7 each carry one unverified item).
 
 **Purpose**: The registration, catalog and skill stub exist so every later task edits a real file.
 
-- [ ] T001 Add `"topology-dojo-mcp"` to `config/openclaw.json` in the hosted bridge form from
-  `contracts/topology-dojo-mcp.md` (`npx` + `mcp-remote@0.14.2` + `${TOPOLOGY_DOJO_MCP_URL:-…}`),
-  repo-relative, `command` and `args` separate, no secret (`docs/ADDING-AN-MCP.md` step 2)
+- [ ] T001 Add `"topology-dojo-mcp"` to `config/openclaw.json` in the hosted API-key form from
+  `contracts/topology-dojo-mcp.md` (`url` + `headers.Authorization: Bearer ${TOPOLOGY_DOJO_API_KEY}`
+  + mirrored `env`), no literal secret (`docs/ADDING-AN-MCP.md` step 2; research R2 update)
 - [ ] T002 [P] Create `workspace/skills/topology-dojo-diagram/SKILL.md` stub with frontmatter
   (`name`, `description`, `license: Apache-2.0`, `user-invocable: true`,
   `metadata.openclaw.requires.bins: ["npx"]`, block-YAML form as in
   `workspace/skills/worldlabs-topology-viz/SKILL.md`)
 - [ ] T003 [P] Add `.env.example` block (rule style, "spec 124"): `TOPOLOGY_DOJO_MCP_URL`
   (default noted), `TOPOLOGY_DOJO_MODE` (`hosted`|`local`), `TOPOLOGY_DOJO_DIR` (local clone
-  path) — names and descriptions only, and a line stating that OAuth tokens live in
-  `~/.mcp-auth/` and are never placed in `.env`
+  path), `TOPOLOGY_DOJO_API_KEY` (minted at `<deployment>/keys`; which scopes each story needs)
+  — names and descriptions only, and a line stating that, in the bridge fallback, OAuth tokens
+  live in `~/.mcp-auth/` and are never placed in `.env`
 - [ ] T004 [P] Add the catalog entry to `scripts/lib/catalog.sh`
-  (`"topology-dojo|Analysis & Diagrams|Topology Dojo|Validated, re-syncable, shareable topology documents (hosted OAuth via mcp-remote, or local clone)"`)
+  (`"topology-dojo|Analysis & Diagrams|Topology Dojo|Validated, re-syncable, shareable topology documents (hosted API key, or local clone)"`)
   and add `topology-dojo` to `PROFILE_RECOMMENDED`, `PROFILE_MULTIVENDOR`, `PROFILE_LABS`
   (`docs/ADDING-AN-MCP.md` "two artifacts that are easy to miss", item 1)
 
@@ -53,11 +54,12 @@ R2 and R7 each carry one unverified item).
 **Purpose**: Settle the two unverified research items and lay down the model + fixtures every
 story's tests use.
 
-- [ ] T005 Verify on a running OpenClaw gateway whether a bare `{"url": ".../mcp"}` entry
-  completes Topology Dojo's OAuth discovery + dynamic client registration natively (research R2,
-  unverified). Record the outcome in `research.md` R2. If native works, change T001's entry to the
-  `url` form and drop the bridge from T014/T016; if not, keep the bridge. Either way, run
-  `python3 scripts/check-server-startup.py --only topology-dojo-mcp` and record the result
+- [ ] T005 Verify against the target deployment that `API_KEYS_ENABLED` is active (Topology Dojo
+  proposal 0005 UAT-MCP-04 passed and production flipped): mint a key with no extra scopes, confirm
+  a `url` + bearer registration reaches `tools/list` and that `share_topology` is absent for that
+  key. Record the outcome in `research.md` R2. If the deployment is still OAuth-only, T014
+  documents the `mcp-remote` fallback and T001's entry is the bridge form until it is. Either way,
+  run `python3 scripts/check-server-startup.py --only topology-dojo-mcp` and record the result
 - [ ] T006 Against a hosted workspace, call `describe_workspace_operations` and record in
   `research.md` R7 whether `upsert_by_source` is among the operation types. If it is not, T012's
   workspace batch builder emits `add_*`/`update_element` against ids read from
@@ -96,9 +98,9 @@ story's tests use.
   `showMeta: true`, every emitted key is in the recorded projection (contracts §Converter)
   (FR-001..004, FR-014, SC-001)
 - [ ] T011 [P] [US1] Add registration assertions to `tests/topology-dojo/run-tests.sh` — key
-  present, `command == "npx"`, args pin `mcp-remote@0.14.2` (or `url` form if T005 flipped it),
-  no `Authorization` header, no literal token, no `mcp-servers/topology-dojo*` directory exists
-  (FR-011, FR-021, SC-006)
+  present, `url` set, `headers.Authorization == 'Bearer ${TOPOLOGY_DOJO_API_KEY}'` by variable
+  reference, no `command`/`args`, no literal `tdk_` key anywhere in tracked files, no
+  `mcp-servers/topology-dojo*` directory exists (FR-011, FR-021, SC-006)
 
 ### Implementation for User Story 1
 
@@ -115,11 +117,14 @@ story's tests use.
   `workspace/output/topology-dojo/<document_identity>-<ts>.{json,svg}` where the `.json` is the
   read-back document, never the converter's pre-import object → Sync Report. State the page-index
   rule (always explicit) and the "never render after every edit" rule (FR-006..008, FR-016)
-- [ ] T014 [US1] Write the SKILL.md "Connection modes" section — hosted default, first-run OAuth
-  via `mcp-remote`, headless port-forward recipe, `~/.mcp-auth/` as the credential store and how to
-  revoke; local mode capabilities table from data-model.md (FR-010/011/015)
+- [ ] T014 [US1] Write the SKILL.md "Connection modes" section — hosted default with a Topology
+  Dojo API key (mint at `/keys`, scopes per story, revoke there; never paste the key in chat or
+  files); the `mcp-remote` OAuth fallback for deployments without the feature (first-run login,
+  headless port-forward recipe, `~/.mcp-auth/` as the credential store and how to revoke); local
+  mode capabilities table from data-model.md (FR-010/011/015)
 - [ ] T015 [US1] Add SKILL.md content assertions to `run-tests.sh` for T013/T014 language
-  (`pageIndex`, "render once", artifact directory, `~/.mcp-auth`, "local mode" capability gaps)
+  (`pageIndex`, "render once", artifact directory, `/keys`, scopes per story, `~/.mcp-auth`
+  fallback, "local mode" capability gaps)
 
 ---
 

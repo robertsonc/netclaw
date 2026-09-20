@@ -165,7 +165,7 @@ boundaries so no link precedes an endpoint and no zone precedes a member.
 | authoring guidance / preferences | yes (when enabled on the deployment) | no |
 | rate limits | 120 writes/min, 8 shares/5 min | none (size caps only) |
 | network needed at run time | yes | no |
-| how the server is obtained | `npx mcp-remote` (cached by the installer) | operator-supplied clone at `TOPOLOGY_DOJO_DIR` with dependencies installed; pre-staged on air-gapped hosts |
+| how the server is reached | `url` + `Bearer ${TOPOLOGY_DOJO_API_KEY}` (fallback: `npx mcp-remote`, cached by the installer) | operator-supplied clone at `TOPOLOGY_DOJO_DIR` with dependencies installed; pre-staged on air-gapped hosts |
 
 Selected by `TOPOLOGY_DOJO_MODE` (`hosted` default, `local`); the installer rewrites the server
 registration for local mode.
