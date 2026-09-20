@@ -10,14 +10,17 @@ Add Topology Dojo (`robertsonc/topology-dojo`) as a second topology-documentatio
 deployment through the `mcp-remote` OAuth bridge NetClaw already ships, or — in local mode — a
 git-cloned stdio server. One new skill, `topology-dojo-diagram`, owns the discover → convert →
 load → validate → tidy → inspect → render → persist loop, and its one piece of real code,
-`dojo_document.py`, deterministically converts NetClaw's existing Topology Snapshot into a
-Topology Dojo document and into idempotent `upsert_by_source` batches so a re-run updates the
+`dojo_document.py` behind an explicit `snapshot_adapter.py`, deterministically converts NetClaw's
+existing canonical Topology Snapshot dataclasses into a Topology Dojo document and into
+idempotent `upsert_by_source` batches under a stable document identity, so a re-run updates the
 same diagram instead of duplicating it. Sharing a public link and writing into a colleague's
 shared workspace are opt-in paths with explicit confirmation, GAIT records, and proposal-only
 writes. Every other change is documentation coherence: SOUL routing boundaries, reciprocal
 handoff lines in the skills that already name draw.io, installer catalog and profiles, HUD
 entries, README/TOOLS/.env.example, and an offline contract suite. Nothing from the Topology Dojo
-repository is copied into NetClaw (it carries no license).
+repository is copied into NetClaw, and the installer does not clone it either, because it carries
+no license. Registering a Remote/OAuth integration in `config/openclaw.json` is a declared
+exception to `docs/ADDING-AN-MCP.md` (research R13).
 
 ## Technical Context
 
@@ -26,7 +29,7 @@ repository is copied into NetClaw (it carries no license).
 written or vendored.
 **Primary Dependencies**: `mcp-remote@0.14.2` (npm, MIT — already a NetClaw package reference);
 Node.js 18+ / npm (already required for a dozen npx integrations); Topology Dojo's own
-`npm ci` in local mode only. No new Python packages.
+`npm ci` in local mode only, run by the operator on their own clone. No new Python packages.
 **Storage**: N/A — timestamped artifacts under `workspace/output/topology-dojo/` (gitignored,
 spec 046 convention) and GAIT records. The `mcp-remote` token cache at `~/.mcp-auth/` is the
 bridge's own state, not NetClaw's.
@@ -114,9 +117,9 @@ config/openclaw.json                         # + "topology-dojo-mcp" (npx mcp-re
 
 workspace/skills/topology-dojo-diagram/      # NEW skill
 ├── SKILL.md                                 # modes, loop, routing boundary, share gate, workspace path
-├── dojo_document.py                         # Topology Snapshot → Dojo document + upsert batches (stdlib)
-├── topology_model.py                        # trimmed port of spec 122's model incl. sanitize_metadata
-└── share_guard.py                           # internal-address scan + confirmed:true guard + GAIT payload
+├── snapshot_adapter.py                      # canonical TopologySnapshot/Link/LinkEndpoint (+ optional LinkOverlay) → adapted snapshot; recursive sanitizer
+├── dojo_document.py                         # adapted snapshot → Dojo document + upsert batches + local diff/counters (stdlib)
+└── share_guard.py                           # recursive address scan of the fetched document + confirmed:true guard + GAIT payload
 
 workspace/skills/drawio-diagram/SKILL.md     # + "When to use Topology Dojo instead" boundary lines
 workspace/skills/pyats-topology/SKILL.md     # + Topology Dojo handoff (Integration with Diagram Tools)
@@ -126,7 +129,7 @@ workspace/skills/document-generation/SKILL.md, network-report-documents/SKILL.md
   msgraph-visio/SKILL.md, uml-diagram/SKILL.md, markmap-viz/SKILL.md   # + one handoff/boundary line each
 
 scripts/lib/catalog.sh                       # + "topology-dojo|Analysis & Diagrams|Topology Dojo|..." + PROFILE_RECOMMENDED/MULTIVENDOR/LABS
-scripts/lib/install-steps.sh                 # + component_install_topology_dojo() (hosted: cache mcp-remote; local: git clone + npm ci + openclaw mcp set)
+scripts/lib/install-steps.sh                 # + component_install_topology_dojo() (hosted: cache mcp-remote; local: verify operator-supplied clone + openclaw mcp set, no clone/install)
 scripts/verify-catalog-coverage.py           # + GROUPED_CONFIG_EXACT "topology-dojo-mcp": "topology-dojo"
 scripts/in2n-profiles.py                     # + "topology-dojo-diagram" in the viz profile's exact list
 ui/netclaw-visual/server.js                  # + node entry, annotation entry, 'diagram'/'topology' keyword routing
@@ -135,10 +138,11 @@ README.md, SOUL.md, SOUL-SKILLS.md, TOOLS.md, .env.example   # coherence surface
 
 tests/topology-dojo/
 ├── run-tests.sh                             # offline: registration, SKILL.md language, unit tests; live-local opt-in
-├── test_dojo_document.py                    # mapping, identity, chunking, determinism, sanitization
-├── test_share_guard.py                      # guard refuses without confirmed=True; address scan
-├── fixtures/                                # small.json (5/4), reconciled.json (statuses), large.json (60/90), sites.json
-└── live_local.sh                            # TOPOLOGY_DOJO_DIR → npm run mcp via scripts/mcp-call.py
+├── test_snapshot_adapter.py                 # real-model field names, link identity precedence, overlay, recursive sanitizer
+├── test_dojo_document.py                    # mapping, identity, chunking, determinism, local diff + counters
+├── test_share_guard.py                      # guard refuses without confirmed=True; recursive address scan incl. link subnet
+├── fixtures/                                # serialized from real _build_snapshot() output: small, reconciled(+overlay), large (60/90), sites, parallel-links
+└── live_local.sh                            # TOPOLOGY_DOJO_DIR → npm run mcp via scripts/mcp-call.py, asserts no network access
 tests/contract-suites.json                   # + "topology-dojo" shell suite (path null, no packages)
 ```
 
@@ -154,14 +158,15 @@ converter lives in the skill directory, the same placement spec 120/122 use for
 |---|---|
 | R1 | peer skill, no provider abstraction, boundary prose in SOUL + four SKILL.md files |
 | R2 | hosted = `npx -y mcp-remote@0.14.2 <url>`; one unverified item (native OAuth in OpenClaw) checked by T005 before wiring is finalized |
-| R3 | local = clone + `npm ci` + `npm run --silent mcp`, registered by the installer only |
-| R4/R5 | deterministic converter with source identities; tier placement; no auto re-layout on sync |
-| R6 | share gate: warn → confirm → publish → GAIT; default deliverable is local files |
+| R3 | local = operator-supplied clone (`TOPOLOGY_DOJO_DIR`) + `npm run --silent mcp`, verified and registered by the installer, no network; clone-at-install gated on R9 |
+| R4/R5 | explicit adapter over the real dataclasses + optional link overlay; link identity precedence (link_id → interface pair → flagged fallback); stable document identity; diff via `get_topology(pageIndex)` with counters derived locally; tier placement; no auto re-layout on sync |
+| R6 | share gate: fetch current document → recursive address scan → confirm → publish → GAIT; default deliverable is local files |
 | R7 | workspace path is proposal-only; `upsert_by_source` availability in proposals verified by T006 |
 | R8 | SVG + JSON (+ flipbook) artifacts; `browser-viz-verify` for raster |
 | R9 | nothing vendored; license request in the PR |
 | R10 | batch and rate limits are converter/skill constants |
 | R11 | offline shell suite + unittest; live-local opt-in |
+| R13 | registered entry is a declared exception to `docs/ADDING-AN-MCP.md`'s Remote/OAuth default |
 
 ## Complexity Tracking
 
@@ -171,6 +176,8 @@ converter lives in the skill directory, the same placement spec 120/122 use for
 | Two connection modes | air-gapped labs and contributors without a GitHub identity (US5) | hosted-only would make the offline contract suite the only way to exercise the converter end to end |
 | A Python converter rather than prompt-driven `add_node` calls | 200-op batches, idempotent identities, deterministic tests (R4/R5) | prompt-driven authoring cannot be tested offline and burns the per-turn tool budget Topology Dojo's own README warns about |
 | No `mcp-servers/<name>/README.md` | no directory exists to hold it (R9) | a README without a server misleads `verify-catalog-coverage.py`'s vendored-state check; the operator notes live in SKILL.md and TOOLS.md |
+| Registered `config/openclaw.json` entry for a Remote/OAuth integration | one key must serve both modes; HUD, startup check and contract suite need a registered key (R13) | the guide's default (external, `EXTERNAL_INTEGRATIONS`) would leave local mode with no key to rewrite and no startup check; recorded as a declared exception |
+| Operator-supplied clone instead of clone-at-install | upstream carries no license (R9); air-gapped hosts need a pre-staged clone anyway | clone-at-install becomes the follow-up once a license lands |
 
 ## Upstream follow-ups (Topology Dojo repository — not in this PR)
 

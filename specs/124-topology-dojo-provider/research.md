@@ -75,35 +75,54 @@ stopping the process"). The renderer loads the vendored engine with `createRequi
 (`src/server/render.ts:24-26`), so no `npm run build` is needed; `tsx` is a devDependency, so
 `npm ci` (not `--omit=dev`) is required. Node 22 and npm 10 are present on this host.
 
-**Decision**: the installer's local branch clones `https://github.com/robertsonc/topology-dojo`
-into `$MCP_DIR/topology-dojo`, runs `npm ci`, and registers via `openclaw mcp set` with
-`command: npm`, `args: ["run","--silent","mcp"]`, `cwd: <clone>` — the documented client config
-(`src/mcp/README.md:19-29`). The repo's tracked `config/openclaw.json` keeps the hosted (bridge)
-form because the clone path is user-specific (the Percepxion precedent in
-`verify-inventory-counts.py:100-104`). FR-008 (always write the JSON) is what makes local mode
-safe: NetClaw, not the server, is the store of record.
+**Decision**: the installer's local branch takes an operator-supplied clone at
+`TOPOLOGY_DOJO_DIR`, verifies `node` ≥ 18, `package.json` and an installed `node_modules`, and
+registers via `openclaw mcp set` with `command: npm`, `args: ["run","--silent","mcp"]`,
+`cwd: <clone>` — the documented client config (`src/mcp/README.md:19-29`). It does **not** clone
+or run `npm ci` itself while the upstream repository is unlicensed (R9); once a license lands, the
+Percepxion/RADKit clone-at-install path (`verify-inventory-counts.py:100-104`,
+`install-steps.sh:1476-1484`) is the obvious follow-up. Two situations are kept apart: "no GitHub
+identity" (connected host, operator clones and runs `npm ci` by hand) and "air-gapped" (the clone
+is pre-staged with `node_modules` already populated on a connected machine of the same OS/arch —
+`tsx`/`esbuild` ship native binaries — and the installer makes no network call). The repo's
+tracked `config/openclaw.json` keeps the hosted (bridge) form because the clone path is
+user-specific. FR-008 (always write the read-back JSON) is what makes local mode safe: NetClaw,
+not the server, is the store of record.
 
-## R4: The input is the existing Topology Snapshot; the converter is pure Python (satisfies FR-001..005)
+## R4: The input is the existing canonical Topology Snapshot, consumed through an explicit adapter (satisfies FR-001..005)
 
-Every NetClaw topology source since spec 046 normalizes to `{"devices": [...], "links": [...]}`
-(`workspace/skills/comfyui-topology-viz/sources.py:1-9` lists CML, GNS3, containerlab, EVE-NG,
-Nautobot, NetBox/Infrahub, IP Fabric, Forward, freeform). Spec 122 ports a trimmed
-`topology_model.py` (Device: hostname/role/state; Link: a/b/label; `sanitize_metadata`). The
-`pyats-topology` skill's model (`SKILL.md:114-142`) adds interfaces, subnets, routing adjacencies
-and FHRP as prose; the NetBox reconciliation categories are DOCUMENTED / UNDOCUMENTED / MISSING /
-MISMATCH.
+The canonical model is `workspace/skills/comfyui-topology-viz/topology_model.py` (spec 120,
+ported from spec 046's three.js skill and trimmed again in spec 122):
+
+- `TopologySnapshot(snapshot_id, source_kind: SourceKind, source_label, created_at, devices, links)`
+- `Device(hostname, role: DeviceRole, state: OperationalState | None, interfaces: list[Interface], metadata)`
+- `Interface(name, parent_hostname, ip_address, state, metadata)`
+- `LinkEndpoint(hostname, interface_name)`; `Link(link_id, endpoint_a, endpoint_b, state, label)`
+
+Every source adapter in `sources.py` (CML, GNS3, containerlab, EVE-NG, Nautobot, NetBox/Infrahub,
+IP Fabric, Forward, freeform) produces exactly these types via `_build_snapshot()`
+(`sources.py:138-149`). Note what is **not** there: no `fetched_at` (it is `created_at`), no
+per-link metadata, no VLAN/subnet/bandwidth, no reconciliation status, and `link_id` falls back to
+the positional `link-<idx>` when the source gives no id (`sources.py:130`). The `pyats-topology`
+skill's richer model (`SKILL.md:114-142`: subnets, routing adjacencies, FHRP) is prose, and the
+NetBox reconciliation categories live in `netbox-reconcile`, outside the dataclasses.
 
 Topology Dojo's document contract (`src/pages/model.ts:25-89`, `src/vendor/topology-ds.ts`)
-has a home for all of it: `NodeConfig.meta` (serial, version, site), `NodeConfig.status`
-(`ok|warn|down|maintenance|unknown`), `LinkConfig.fromLabel/toLabel` (interface names),
-`LinkConfig.vlan/subnet/bandwidth/transport/showMeta`, `ZoneConfig` (site or VRF grouping),
+has a home for everything the canonical model does carry, and more: `NodeConfig.meta`,
+`NodeConfig.status` (`ok|warn|down|maintenance|unknown`), `LinkConfig.fromLabel/toLabel`
+(interface names), `LinkConfig.vlan/subnet/bandwidth/transport/showMeta`, `ZoneConfig`, and
 `source` on every sourced element.
 
-**Decision**: `workspace/skills/topology-dojo-diagram/dojo_document.py` (stdlib only, matching
-the repo's Python-tooling convention) converts a snapshot into (a) a native document for
-`import_topology` and (b) an `edit_topology` batch of `upsert_by_source` operations for re-sync.
-It is a deterministic function of its input so it can be tested offline with fixtures. The LLM
-never hand-writes 200 `add_node` calls.
+**Decision**: two modules in `workspace/skills/topology-dojo-diagram/`, both stdlib only.
+`snapshot_adapter.py` imports nothing from other skills (the repo's copy-and-trim convention) but
+is tested against JSON serialized from the real `_build_snapshot()` output so the field names
+cannot drift silently; it accepts the canonical dataclasses (or their `dataclasses.asdict`
+form) plus an optional `LinkOverlay` keyed by `link_id` for reconciliation status, VLAN,
+bandwidth and transport, and derives a link `subnet` only when both endpoint interfaces carry an
+`ip_address` with a prefix length. `dojo_document.py` then converts the adapted snapshot into (a)
+a native document for `import_topology` and (b) `edit_topology` batches of `upsert_by_source`
+operations for re-sync. Both are deterministic functions of their input so they can be tested
+offline with fixtures. The LLM never hand-writes 200 `add_node` calls.
 
 Role mapping (spec 121 roles → Dojo built-in node types, `src/api/builtins.ts`):
 
@@ -136,12 +155,19 @@ element kind and patches on a match, otherwise creates (requiring `type/x/y` for
 `edit_topology` operation (`src/mcp/tools.ts:1355-1369`), so a whole sync is one batch and one
 rate-limit unit.
 
-**Decision** — identity scheme:
+**Decision** — element identity scheme:
 
 - node: `{system: <snapshot.source_kind>, kind: "device", id: <hostname lowercased>}`
-- link: `{system: <source_kind>, kind: "link", id: "<a>:<ifA>|<b>:<ifB>"}` with endpoints
-  sorted so A–B and B–A are the same link; when interfaces are unknown, `"<a>|<b>#<n>"` with a
-  stable ordinal.
+- link, in precedence order:
+  1. `{system, kind: "link", id: <link_id>}` when the source supplied one — NetBox/Nautobot cable
+     ids, CML/GNS3/containerlab link ids. A positional `link-<n>` from `sources.py:130` is treated
+     as absent.
+  2. `{system, kind: "link", id: "<a>:<ifA>|<b>:<ifB>"}` when both interface names are known,
+     endpoints sorted so A–B and B–A agree.
+  3. `{system, kind: "link", id: "<a>|<b>#<n>"}` otherwise, where `n` is the ordinal after
+     sorting that device pair's interface-less links by `(label, state)`. This is deterministic
+     for a given input but cannot be stable across discoveries for truly parallel, unlabeled
+     links; the adapter flags those links and the Sync Report lists them.
 - zone (site/VRF): `{system: <source_kind>, kind: "site"|"vrf", id: <name>}`
 
 Element ids are derived from the same strings (`n-<slug>`, `l-<slug>`) so the first sync's
@@ -149,9 +175,23 @@ Element ids are derived from the same strings (`n-<slug>`, `l-<slug>`) so the fi
 the skill always passes `pageIndex` and single-page documents are the default; multi-page
 (per-site) documents put the site name in the page name and sync each page separately.
 
-Removed-at-source elements: the converter diffs the document returned by `get_topology`
-(elements whose `source.system` matches) against the snapshot and reports them; removal is a
-separate, engineer-confirmed `remove_element` batch (US2 scenario 3).
+**Decision** — document identity. `snapshot_id` is minted from the wall clock on every discovery
+(`sources.py:57-58`), so a title that embeds it can never be found again. The document identity
+is `netclaw:<source_kind>:<slug(source_label)>`, carried as the document title
+(`NetClaw — <source_kind> — <source_label>`) and as the artifact filename stem. Hosted mode finds
+the existing draft with `list_topologies` by that title; local mode re-imports the newest
+`<identity>-*.json` artifact before syncing. `snapshot_id` and `created_at` are provenance only:
+they go into `source.fetchedAt`, the artifact filename suffix, and the GAIT record.
+
+**Decision** — diff and counters. `get_topology(summary: true)` returns page names and element
+counts only (`src/mcp/tools.ts:420-446`), so it cannot feed a diff. The skill fetches each affected
+page with `get_topology(pageIndex)` and the converter diffs the sourced elements it finds against
+the adapted snapshot **before** sending the batch: elements absent at source are reported (removal
+is a separate, engineer-confirmed `remove_element` batch — US2 scenario 3), and created / updated /
+unchanged are computed locally by comparing the intended `set` against the fetched element.
+`edit_topology` compacts every result to `{op, id, pageIndex}` (`src/mcp/tools.ts:1420-1428`) and
+`upsert_by_source`'s own `created` flag does not survive, so no counter may be read from the
+batch result; the result is used only to confirm `applied` equals the batch length.
 
 ## R6: Sharing is an outward publication and is gated (satisfies FR-012, Clarification Q3)
 
@@ -163,9 +203,14 @@ content". Re-publishing mints a new id; nothing renews an old one. Revocation is
 
 **Decision**: same shape as spec 122's credit-spending gate — explicit conversational "yes" in the
 same turn sequence, a code-level `confirmed: true` argument on the skill helper that assembles the
-call, a pre-publish scan for RFC 1918 / link-local / loopback strings in labels and metadata, and a
-`gait_record_turn` entry (topology id, share id, expiry, outcome). The default deliverable is the
-local SVG + JSON; the URL is only produced on request.
+call, and a `gait_record_turn` entry (topology id, share id, expiry, outcome). The pre-publish scan
+runs against the **current server-side document**, fetched with `get_topology` immediately before
+`share_topology`, and walks it recursively — every string value at any depth, so first-class link
+fields (`subnet`, `fromLabel`/`toLabel`, `label`, `sublabel`), node `meta`, zone descriptions and
+flow-path/policy-marker text are all covered — flagging RFC 1918, link-local (`169.254/16`,
+`fe80::/10`), loopback and unique-local (`fc00::/7`) addresses. Scanning only the converter's
+labels/meta would miss `subnet: "10.1.1.0/30"`. The default deliverable is the local SVG + JSON;
+the URL is only produced on request.
 
 ## R7: Workspace writes are proposals by default (satisfies FR-013, US4)
 
@@ -206,10 +251,12 @@ renderer needs only Node.
 No `LICENSE` at the repo root or anywhere in the tree; `package.json` has `"private": true` and no
 `license` field. NetClaw is Apache-2.0.
 
-**Decision**: nothing is vendored. Local mode clones at install time into the user's `$MCP_DIR`
-(precedents: RADKit `install-steps.sh:1476-1484`, Percepxion). The PR description asks the
-Topology Dojo maintainer to add a license (Apache-2.0 matches NetClaw and the vendored MCP servers
-NetClaw already tracks); until then the README describes local mode as "clone your own copy".
+**Decision**: nothing is vendored, and the installer does not clone either. Local mode registers
+an operator-supplied clone (`TOPOLOGY_DOJO_DIR`) and verifies it; automatic clone-at-install
+(precedents: RADKit `install-steps.sh:1476-1484`, Percepxion) is a follow-up gated on the upstream
+license. The PR description asks the Topology Dojo maintainer to add one (Apache-2.0 matches
+NetClaw and the vendored MCP servers NetClaw already tracks); until then README and SKILL.md
+describe local mode as "bring your own clone".
 
 ## R10: Batch limits, rate limits and size caps (satisfies FR-005, Edge Cases)
 
@@ -241,6 +288,25 @@ recorded in `contracts/topology-dojo-mcp.md`). An opt-in live-local check, gated
 `TOPOLOGY_DOJO_DIR` pointing at a prepared clone, drives `npm run mcp` through
 `scripts/mcp-call.py` for `import_topology → validate_topology → render_svg` on a fixture. It is
 declared under `live` in `tests/contract-suites.json`, never in the default path.
+
+## R13: Registering a Remote/OAuth integration is a declared exception to `docs/ADDING-AN-MCP.md`
+
+`docs/ADDING-AN-MCP.md:30-42` says Remote/OAuth integrations get **no** `config/openclaw.json`
+entry and are recorded in `EXTERNAL_INTEGRATIONS` with reason `remote/OAuth` (examples given:
+Zscaler, ThousandEyes official). Repo precedent is mixed: `zscaler-mcp`, `thousandeyes-official-mcp`,
+`globalping-mcp`, `meraki-mcp`, `topolograph-mcp` and `devnet-content-search` are all registered
+`url` entries in `config/openclaw.json` today, while Zoom Meetings (spec 118) and Datadog are
+external.
+
+**Decision**: register `topology-dojo-mcp`, and say so. Reasons: (1) one server key must serve both
+the hosted bridge and the local stdio server, and only a registered key can be rewritten by
+`openclaw mcp set` at install time; (2) the HUD node, `check-server-startup.py` and the contract
+suite's registration assertions all need a registered key; (3) the bridged form is stdio from
+OpenClaw's point of view, so `normalize-mcp-cwd.py` and the portability check apply cleanly. The
+cost: the integration counts as a config entry rather than an external one (which is what moves
+the computed MCP count from 172 to 173). This is recorded as an exception in spec.md (FR-019,
+Assumptions), in TOOLS.md's section for the server, and in the PR; the plan does not claim
+unqualified adherence to the guide.
 
 ## R12: What this feature deliberately does not do
 

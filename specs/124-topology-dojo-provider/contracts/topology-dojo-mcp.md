@@ -10,7 +10,11 @@
 }
 ```
 
-Local form (written by the installer with `openclaw mcp set`, never tracked — path is user-specific):
+Registering a Remote/OAuth integration here is a declared exception to `docs/ADDING-AN-MCP.md`
+(research R13).
+
+Local form (written by the installer with `openclaw mcp set` from an operator-supplied clone at
+`TOPOLOGY_DOJO_DIR`, never tracked — path is user-specific):
 
 ```json
 "topology-dojo-mcp": { "command": "npm", "args": ["run", "--silent", "mcp"], "cwd": "<MCP_DIR>/topology-dojo" }
@@ -36,8 +40,10 @@ with text `Error: <message>`.
 | Tool | Args | Used for |
 |---|---|---|
 | `import_topology` | `{json: <Dojo Document>, title, format: "topology-dojo"}` | first sync — returns `{id}` |
-| `list_topologies` / `get_topology` | `{}` / `{topologyId, summary?: true, pageIndex?}` | find an existing NetClaw-titled draft; read `source` fields for the absent-at-source diff |
-| `edit_topology` | `{topologyId, pageIndex, operations: [{op: "upsert_by_source", kind, source, set}, ...]}` | re-sync; ≤ 200 ops; atomic per call; result `{applied, results: [{op, id, pageIndex}]}` |
+| `list_topologies` | `{}` | hosted: find the existing draft whose title equals the stable document identity title |
+| `get_topology` | `{topologyId, pageIndex}` | fetch each affected page (with element `source` fields) for the local Sync Diff; `summary: true` returns counts only and is never used for the diff |
+| `get_topology` | `{topologyId}` | full read-back after the final validate/tidy pass — this is what is written to the `.json` artifact, and what the share scan walks |
+| `edit_topology` | `{topologyId, pageIndex, operations: [{op: "upsert_by_source", kind, source, set}, ...]}` | re-sync; ≤ 200 ops; atomic per call; result `{applied, results: [{op, id, pageIndex}]}` — no `created` flag survives, so counters come from the local Sync Diff and the result only confirms `applied == len(operations)` |
 | `remove_element` | `{topologyId, elementId, cascade: true}` | only after the engineer confirms removal of absent-at-source elements |
 | `set_legend` | `{topologyId, show: true, position: "br"}` | when any link carries reconciliation status |
 | `set_document_title` | `{topologyId, title}` | when the engineer renames |
@@ -61,7 +67,7 @@ node and `type/from/to` for a link when the element does not exist yet.
 
 | Tool | Args | Rule |
 |---|---|---|
-| `share_topology` | `{topologyId}` | only after `share_guard.assert_confirmed(confirmed=True)`; result `{id, url, expiresAt}`; 8 per 5 min |
+| `share_topology` | `{topologyId}` | only after `get_topology` (full) → `share_guard.scan_internal_addresses(document)` → engineer sees the list → `share_guard.assert_confirmed(confirmed=True)`; result `{id, url, expiresAt}`; 8 per 5 min |
 | `list_shares` | `{}` | `{shares: [{id, title, createdAt, expiresAt}]}` |
 | `unpublish_topology` | `{shareId}` | 12-character id from the `/v/<id>` URL |
 
@@ -78,30 +84,59 @@ node and `type/from/to` for a link when the element does not exist yet.
 | `apply_workspace_changes` | same minus title/rationale | only when the engineer states a live page lease is granted |
 | `create_checkpoint` / `list_checkpoints` | `{workspaceId, name}` / `{workspaceId}` | before a large proposal, when asked |
 
+## Adapter contract (`snapshot_adapter.py`)
+
+```python
+FORBIDDEN_KEYS: frozenset[str]   # union of the existing NetClaw denylist + {"passwd", "community"}
+def sanitize_recursive(value: Any) -> Any                     # walks mappings and lists at any depth
+def link_identity(link: dict) -> tuple[str, bool]             # (identity, ambiguous) per the precedence rule
+def document_identity(source_kind: str, source_label: str) -> str   # "netclaw:<kind>:<slug>"
+def adapt(snapshot: TopologySnapshot | dict, overlay: LinkOverlay | None = None) -> AdaptedSnapshot
+```
+
+`adapt` accepts either the canonical dataclasses or their `dataclasses.asdict` form so the tests
+can feed JSON serialized from the real `_build_snapshot()`.
+
+Guarantees asserted by `tests/topology-dojo/test_snapshot_adapter.py`:
+- every fixture is a verbatim serialization of the real model (`link_id`, `endpoint_a`,
+  `endpoint_b`, `interface_name`, `source_label`, `created_at`); no invented field is read
+- `link-<n>` ids are treated as absent; a real `link_id` wins over the interface pair
+- endpoint swap does not change identity; interface-less parallel links are flagged `ambiguous`
+- overlay fields land on the right link by `link_id`; missing overlay is not an error
+- nested secrets (`{"snmp": {"community": "..."}}`, lists of dicts) are removed; the union
+  denylist is enforced
+
 ## Converter contract (`dojo_document.py`)
 
 ```python
-def build_document(snapshot: TopologySnapshot, *, title: str | None = None,
-                   split_by_site: bool = False) -> dict            # Dojo Document (data-model.md)
-def build_upsert_batches(snapshot: TopologySnapshot, *, page_index: int = 0,
+def build_document(adapted: AdaptedSnapshot, *, split_by_site: bool = False) -> dict   # Dojo Document (data-model.md)
+def build_upsert_batches(adapted: AdaptedSnapshot, *, page_index: int = 0,
                          max_ops: int = 200, max_bytes: int | None = None) -> list[list[dict]]
-def diff_absent_at_source(document: dict, snapshot: TopologySnapshot) -> list[dict]
+def diff_page(fetched_page: dict, adapted: AdaptedSnapshot) -> SyncDiff   # to_create / to_update / unchanged / absent_at_source / ambiguous_links
 def slug(text: str) -> str                                        # deterministic element-id component
 ROLE_TO_TYPE, STATE_TO_STATUS, RECONCILIATION_COLOR                # documented tables (research R4)
 ```
 
 Guarantees asserted by `tests/topology-dojo/test_dojo_document.py`:
 - node count == device count; link count == link count; labels == hostnames (SC-001)
-- `build_upsert_batches(s)` twice → identical output; identities stable under endpoint swap (SC-002)
+- `build_upsert_batches(a)` twice → identical output; identities stable under endpoint swap (SC-002)
 - 60/90 fixture → 1 batch at `max_ops=200`; 250/512 KiB proposal limits respected when set (SC-003)
-- credential-shaped keys never appear in any emitted `meta` (FR-014)
+- `diff_page` against a fixture page: unchanged fixture → all `unchanged`; one added device → one
+  `to_create`; one removed device → one `absent_at_source`; a changed status → one `to_update`
 - every emitted field name is in the recorded projection of `src/pages/model.ts` /
   `src/vendor/topology-ds.ts` (the schema drift check)
 
 ## Share guard contract (`share_guard.py`)
 
 ```python
-def scan_internal_addresses(document: dict) -> list[str]   # RFC1918, link-local, loopback, ULA strings found in labels/meta
+def scan_internal_addresses(document: dict) -> list[str]   # recursive walk of the fetched document: every string at any depth, incl. link subnet/fromLabel/toLabel
 def assert_confirmed(confirmed: bool) -> None               # raises unless confirmed is True (code-level gate, FR-012)
-def gait_payload(action: str, topology_id: str, share: dict | None, snapshot_id: str, outcome: str) -> dict
+def gait_payload(action: str, document_identity: str, topology_id: str, share: dict | None,
+                 snapshot_id: str, outcome: str) -> dict
 ```
+
+Guarantees asserted by `tests/topology-dojo/test_share_guard.py`:
+- a link with `subnet: "10.1.1.0/30"` and nothing else internal is reported (the case a
+  label/meta-only scan misses); `169.254.1.1`, `127.0.0.1`, `fe80::1`, `fd00::/8` are reported;
+  `203.0.113.1` and `2001:db8::1` are not
+- `assert_confirmed(False)` raises; the GAIT payload contains no URL body and no token

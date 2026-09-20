@@ -22,17 +22,25 @@
   registered server key.** Hosted mode (default) goes through the `mcp-remote` stdio bridge NetClaw
   already ships for IP Fabric and ThousandEyes; it completes the OAuth flow once interactively and
   caches tokens on disk. Local mode runs Topology Dojo's own unauthenticated stdio server from a
-  git clone made at install time. See research.md R2/R3.
+  clone the operator supplies. See research.md R2/R3.
 - Q: `share_topology` publishes a public, unauthenticated 30-day snapshot. Is that an "external
   communication" under Constitution Principle XIV? → A: **Yes.** Sharing is opt-in, requires
   explicit per-invocation confirmation in the same conversation, produces a GAIT record
   (Principle IV), and is preceded by credential-shaped-metadata stripping and an internal-address
   warning. The default deliverable is a local artifact, never a public link. See research.md R6.
 - Q: Topology Dojo has no LICENSE file and `package.json` declares none. Can NetClaw vendor it? →
-  A: **No.** Nothing from the Topology Dojo repository is copied into NetClaw. Local mode
-  git-clones it into the user's own `$MCP_DIR` at install time (the Percepxion/RADKit precedent),
-  and the PR description asks the Topology Dojo maintainer to add a license before the local mode
-  is documented as more than "bring your own clone". See research.md R9.
+  A: **No.** Nothing from the Topology Dojo repository is copied into NetClaw. Until the upstream
+  repository carries a license, local mode registers a clone the operator supplies
+  (`TOPOLOGY_DOJO_DIR`, bring-your-own or pre-staged); the installer never clones automatically.
+  Automatic clone-at-install (the Percepxion/RADKit precedent) is a follow-up gated on that
+  license. See research.md R9.
+- Q: `docs/ADDING-AN-MCP.md` classifies Remote/OAuth integrations as external, with no
+  `config/openclaw.json` entry. This plan registers a bridged stdio entry. Which is it? → A: **A
+  declared exception.** The integration is Remote/OAuth by that taxonomy, but it is registered
+  because one server key must serve both the hosted (bridged) and local (stdio) modes, the HUD and
+  startup check need a registered key, and repo precedent is already mixed (Globalping, Meraki and
+  ThousandEyes Official are all registered `url` entries). The exception is recorded in research.md
+  R13 and FR-019 is worded accordingly; the plan does not claim unqualified adherence.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -156,23 +164,36 @@ appears in the owner's review list and that no revision advanced until accepted.
 
 ### User Story 5 - Work offline with a local Topology Dojo (Priority: P3)
 
-An engineer on a lab host with no GitHub identity or outbound access installs the local mode. The
-installer clones Topology Dojo into their MCP directory, installs its locked dependencies, and
-registers the stdio server. Stories 1 and 2 work unchanged; NetClaw persists every document JSON
-itself because the local server holds drafts only in memory.
+Two distinct situations share this story and must not be conflated. (a) An engineer who does not
+want to use a GitHub identity, on a host with outbound access: they obtain a Topology Dojo clone
+(today by hand, later via the installer once the upstream license lands), the installer verifies
+Node.js and the clone's installed dependencies, and registers the stdio server. (b) An engineer on
+an air-gapped lab host: they pre-stage the clone with its dependencies already installed (built on
+a connected machine of the same platform, since the toolchain carries native binaries) and the
+installer registers it performing no network access at all. In both cases Stories 1 and 2 work
+unchanged; NetClaw persists every document JSON itself because the local server holds drafts only
+in memory.
 
-**Why this priority**: Local mode is the fallback for air-gapped labs and for contributors who do
-not want to authenticate; it is not the primary path.
+**Why this priority**: Local mode is the fallback for labs without identity or connectivity; it is
+not the primary path, and its install story is constrained by the upstream license (research R9).
 
-**Independent Test**: With `TOPOLOGY_DOJO_MODE=local`, run Story 1's independent test; confirm
-the artifacts exist and that no share/workspace tools are offered.
+**Independent Test**: With `TOPOLOGY_DOJO_MODE=local` and `TOPOLOGY_DOJO_DIR` pointing at a
+prepared clone, run Story 1's independent test; confirm the artifacts exist, that no
+share/workspace tools are offered, and that the install and the run made no network calls.
 
 **Acceptance Scenarios**:
 
 1. **Given** local mode, **When** Node.js 18+ is missing, **Then** the installer says so and skips
    the component rather than registering a server that cannot start.
 2. **Given** local mode, **When** the server process restarts, **Then** previously produced
-   diagrams are still available as JSON artifacts and can be re-imported.
+   diagrams are still available as JSON artifacts and are re-imported before the next sync.
+3. **Given** an air-gapped host with a pre-staged clone whose dependencies are installed, **When**
+   the installer runs with `TOPOLOGY_DOJO_DIR` set, **Then** it registers the server without any
+   network access, and the contract suite's local check proves the sync loop needs none either.
+4. **Given** `TOPOLOGY_DOJO_DIR` is unset or points at a directory with no installed
+   dependencies, **When** the installer runs, **Then** it explains what to pre-stage and skips;
+   it never clones or installs on the operator's behalf while the upstream repository is
+   unlicensed.
 
 ---
 
@@ -218,6 +239,12 @@ files, and `document-generation`'s routing table.
   defaults to page 0; the skill always passes `pageIndex` explicitly.
 - A device hostname or interface name contains characters unsafe for an element id: ids are
   derived deterministically and the human-readable label keeps the original text.
+- Parallel links between the same two devices with no interface names and no source-supplied
+  link id are inherently ambiguous across discoveries; the fallback ordering is deterministic for
+  a given input and the Sync Report flags such links so the engineer knows identities may have
+  swapped.
+- The source adapter synthesised a positional link id (`link-<n>`): it is treated as absent, not
+  as a stable identity.
 - Device metadata carries credential-shaped keys (password, secret, token, api_key): stripped
   before anything leaves NetClaw, using the same `sanitize_metadata` rule specs 120–122 apply.
 - The shared snapshot contains internal addresses: NetClaw warns before publishing and lists them.
@@ -229,44 +256,67 @@ files, and `document-generation`'s routing table.
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST accept the existing NetClaw Topology Snapshot shape (devices with
-  hostname/role/state/metadata, links with two endpoints/interfaces/label/metadata, as normalized
-  by every source adapter since spec 046) and produce a Topology Dojo document from it without
-  requiring the caller to know Topology Dojo's vocabulary.
+- **FR-001**: The system MUST consume the existing canonical Topology Snapshot dataclasses as
+  they are (`TopologySnapshot`: `snapshot_id`, `source_kind`, `source_label`, `created_at`,
+  `devices`, `links`; `Device`: `hostname`, `role`, `state`, `interfaces`, `metadata`;
+  `Interface`: `name`, `ip_address`, `state`, `metadata`; `Link`: `link_id`, `endpoint_a`,
+  `endpoint_b` each with `hostname` and `interface_name`, `state`, `label`) through an explicit
+  adapter that is tested against serialized output of the real source adapters, and MUST accept an
+  optional caller-supplied per-link annotation overlay (reconciliation status, VLAN, bandwidth,
+  transport) for data the canonical model does not carry. The caller never needs Topology Dojo's
+  vocabulary.
 - **FR-002**: Every device MUST map to exactly one node whose label is the hostname verbatim, whose
   node type follows a documented role mapping, and whose status follows a documented state mapping.
 - **FR-003**: Every link MUST map to exactly one link between the two endpoint nodes, carrying the
   endpoint interface names as the link's from/to labels when known, and VLAN, subnet, bandwidth and
   transport as first-class link metadata when known.
 - **FR-004**: Every node and link MUST carry a source identity (system, kind, id, fetched-at) so
-  that a repeated sync converges on the existing element instead of creating a duplicate.
+  that a repeated sync converges on the existing element instead of creating a duplicate. Link
+  identity MUST prefer a source-supplied link id, then the sorted endpoint:interface pair, and only
+  then a documented deterministic fallback whose ordering rule is stated and tested.
+- **FR-004a**: Document identity MUST be stable across discoveries. It is derived from the source
+  kind and source label, never from the per-run snapshot id, which is provenance only. Hosted mode
+  locates the existing draft by that identity; local mode re-imports the newest artifact carrying
+  that identity before syncing.
 - **FR-005**: A sync MUST be expressed as ordered operation batches no larger than the target's
   documented limit, applied atomically per batch, with partial application reported.
 - **FR-006**: After loading, the system MUST validate the document, run the tidy/balance pass when
   layout problems are reported, and re-validate; remaining problems are reported verbatim.
 - **FR-007**: The system MUST run the visual-quality inspection before rendering and MUST render
   at most once per page per sync.
-- **FR-008**: Every successful sync MUST write the document JSON and the rendered SVG to the
-  persistent NetClaw output directory as timestamped, uniquely named files that are never
-  overwritten (the spec 046 convention).
+- **FR-008**: Every successful sync MUST write the canonical document as read back from Topology
+  Dojo after the final validate/tidy pass (never the converter's pre-import object, which lacks
+  the layout adjustments the render used) and the rendered SVG to the persistent NetClaw output
+  directory as timestamped, uniquely named files that are never overwritten (the spec 046
+  convention).
+- **FR-008a**: Created, updated and unchanged counts in the Sync Report MUST be derived locally by
+  diffing the fetched canonical page against the intended element state before the batch is sent,
+  because batch results carry only the operation name, element id and page index.
 - **FR-009**: Reconciliation status supplied by the source MUST map to link colour using the
   existing NetClaw convention (green documented, yellow undocumented, red missing, orange mismatch)
   and MUST enable the document legend.
 - **FR-010**: The system MUST support two connection modes selected by configuration — hosted
   (default, the maintainer's deployment or any self-hosted deployment URL) and local (a stdio
-  server run from a git clone) — under one registered server key.
+  server run from an operator-supplied clone) — under one registered server key.
 - **FR-011**: In hosted mode, authentication MUST use the deployment's OAuth flow through the
   `mcp-remote` bridge; no token, client secret, or cookie is ever stored in a tracked file, and the
   system MUST name the bridge's cached-credential location so an operator can revoke it.
 - **FR-012**: Publishing a public share link MUST require explicit confirmation in the same
-  conversation, MUST be preceded by a warning listing any internal or link-local addresses found
-  in the document, and MUST produce a GAIT audit record naming the topology, the share id, the
-  expiry, and the outcome — never the document contents.
+  conversation, MUST be preceded by a recursive scan of the current server-side canonical
+  document, fetched immediately before the publish call, across every string field (first-class
+  link fields such as subnet, interface addresses, labels, sublabels, metadata and annotations
+  included) that warns about any private, link-local, loopback or unique-local address found, and
+  MUST produce a GAIT audit record naming the topology, the share id, the expiry, and the outcome
+  — never the document contents.
 - **FR-013**: Writes to a shared Agent Workspace MUST be submitted as named proposals by default;
   direct application MUST only be attempted when the engineer states that a live page lease is
   granted, and a conflict MUST be reported, not retried blindly.
-- **FR-014**: Credential-shaped metadata keys MUST be stripped from every device and link before
-  any data is sent to Topology Dojo in either mode.
+- **FR-014**: Credential-shaped metadata keys MUST be stripped from every device, interface and
+  link before any data is sent to Topology Dojo in either mode, using at least the union of the
+  existing NetClaw denylist (password, secret, credential, credentials, api_key, apikey, token,
+  running_config, startup_config, config, private_key) with passwd and community, applied
+  recursively through nested mappings and lists so a secret under an innocent parent key cannot
+  survive.
 - **FR-015**: When a requested capability is unavailable in the active mode (share, workspace,
   checkpoints, authoring preferences in local mode), the system MUST say so and offer the nearest
   available alternative instead of failing opaquely.
@@ -278,21 +328,28 @@ files, and `document-generation`'s routing table.
 - **FR-018**: The skills that today hand off to draw.io for topology output (`pyats-topology`,
   `netbox-reconcile`, `clab-lab-management`, `claroty-ot-topology`, `network-report-documents`,
   `browser-viz-verify`, `msgraph-visio`) MUST gain a reciprocal Topology Dojo handoff line.
-- **FR-019**: The integration MUST follow `docs/ADDING-AN-MCP.md` end to end and pass
-  `scripts/reconcile-mcp.py` with exit 0, including the documented count claims.
+- **FR-019**: The integration MUST follow `docs/ADDING-AN-MCP.md` and pass
+  `scripts/reconcile-mcp.py` with exit 0, including the documented count claims, with one declared
+  exception recorded in research R13: by that guide's taxonomy this is a Remote/OAuth integration
+  and would be external, but it is registered as a bridged stdio entry so one key serves both
+  modes. The exception MUST be stated in the spec, TOOLS.md and the PR, not implied.
 - **FR-020**: An offline contract test suite MUST cover the converter (mapping, idempotent source
   identities, chunking, sanitization, determinism), the registration shape, and the SKILL.md
   safety language, and MUST be declared in `tests/contract-suites.json`.
-- **FR-021**: Nothing from the Topology Dojo repository MUST be copied into NetClaw; local mode
-  obtains it by git clone at install time into the user's MCP directory.
+- **FR-021**: Nothing from the Topology Dojo repository MUST be copied into NetClaw. While the
+  upstream repository carries no license, local mode registers an operator-supplied clone and the
+  installer MUST NOT clone or install on the operator's behalf; automatic clone-at-install is
+  enabled only once a license is present upstream.
 
 ### Key Entities
 
 - **Topology Snapshot**: the existing normalized input (devices, links, source kind, snapshot id,
-  fetched-at). Consumed, not owned.
+  created-at, as defined by the canonical dataclasses). Consumed, not owned.
 - **Dojo Document**: Topology Dojo's native document (title, ordered pages, each with nodes,
   links, anchors, zones, flow paths, policy markers; optional layers, legend, palette). Produced
   by the converter; the portable, canonical artifact.
+- **Document Identity**: the stable key (source kind + source label) that names one Topology Dojo
+  document across discoveries; the snapshot id is provenance, not identity.
 - **Source Identity**: the (system, kind, id, fetchedAt) tuple stamped on every converted element;
   the key `upsert_by_source` converges on.
 - **Sync Batch**: an ordered list of authoring operations bounded by the target's limits, with a
@@ -337,6 +394,12 @@ files, and `document-generation`'s routing table.
   `browser-viz-verify` can screenshot the SVG when a raster is required.
 - draw.io XML export exists in Topology Dojo's browser editor only; a Dojo → draw.io hand-over over
   MCP is a Topology Dojo follow-up, not part of this feature.
+- Registering a Remote/OAuth integration in `config/openclaw.json` departs from the default in
+  `docs/ADDING-AN-MCP.md`; it is a deliberate, recorded exception (research R13), not an oversight.
+- The canonical Topology Snapshot carries no per-link VLAN, subnet, bandwidth or reconciliation
+  status; those arrive through an optional overlay the calling skill supplies (for example
+  `netbox-reconcile`'s categories), and interface subnets are derived from `Interface.ip_address`
+  only when it carries a prefix length.
 - The pre-existing count drift (docs claim 173 MCP integrations, computed 172) is resolved by this
   feature's single new registered server, which brings the computed value to 173; skills go from
   227 to 228. Both are stated explicitly in the PR so the coincidence is not mistaken for a fix.

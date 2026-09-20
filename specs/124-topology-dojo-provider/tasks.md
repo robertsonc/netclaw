@@ -62,12 +62,19 @@ story's tests use.
   `research.md` R7 whether `upsert_by_source` is among the operation types. If it is not, T012's
   workspace batch builder emits `add_*`/`update_element` against ids read from
   `get_workspace_elements`, matching on the element `source` field NetClaw-side
-- [ ] T007 [P] Create `workspace/skills/topology-dojo-diagram/topology_model.py` — trimmed port
-  of `workspace/skills/worldlabs-topology-viz/topology_model.py` (Device, Link, TopologySnapshot,
-  `sanitize_metadata`) extended with `Link.a_interface/b_interface` and `Device.interfaces`,
-  keeping the credential-key list in one constant (data-model.md)
-- [ ] T008 [P] Create `tests/topology-dojo/fixtures/{small,reconciled,large,sites}.json` — 5/4
-  devices/links; four reconciliation statuses; 60/90 (SC-003); two sites with `metadata.site`
+- [ ] T007 [P] Create `workspace/skills/topology-dojo-diagram/snapshot_adapter.py` consuming
+  the **real** canonical model (`TopologySnapshot`/`Device`/`Interface`/`LinkEndpoint`/`Link`
+  from `workspace/skills/comfyui-topology-viz/topology_model.py`, accepted as dataclasses or
+  `asdict` output — no invented fields such as `fetched_at`, `a`/`b`, `a_interface`): recursive
+  sanitizer over the union denylist, link identity precedence (`link_id` unless it is a positional
+  `link-<n>` → sorted interface pair → flagged ordinal fallback), stable `document_identity`,
+  optional `LinkOverlay` by `link_id`, subnet derivation from endpoint `Interface.ip_address`
+  prefixes (data-model.md, research R4/R5)
+- [ ] T008 [P] Create `tests/topology-dojo/fixtures/*.json` by serializing real
+  `_build_snapshot()` output (`dataclasses.asdict`, enums as values, `created_at` ISO) so field
+  names cannot drift: `small` (5/4), `reconciled` (+ a `LinkOverlay` file with the four
+  statuses), `large` (60/90, SC-003), `sites` (two sites via `metadata.site`), `parallel`
+  (two interface-less links between the same pair, one with a real `link_id`, one without)
 - [ ] T009 [P] Create `tests/topology-dojo/run-tests.sh` skeleton in the Globalping style
   (`set -uo pipefail`, `REPO_ROOT` from `BASH_SOURCE`, `check()` helper, exit codes captured
   directly, `PASS`/`FAIL` banner) and declare the suite in `tests/contract-suites.json` as
@@ -80,11 +87,14 @@ story's tests use.
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Write `tests/topology-dojo/test_dojo_document.py::TestBuildDocument` —
-  node/link counts equal device/link counts, labels equal hostnames verbatim, role → type and
-  state → status tables applied, interface names land in `fromLabel`/`toLabel`, VLAN/subnet/
-  bandwidth land in link fields with `showMeta: true`, every emitted key is in the recorded
-  projection (contracts §Converter), credential-shaped keys absent (FR-001..003, FR-014, SC-001)
+- [ ] T010 [P] [US1] Write `tests/topology-dojo/test_snapshot_adapter.py` (contracts §Adapter:
+  real-model field names only, `link-<n>` treated as absent, identity precedence, endpoint-swap
+  stability, `ambiguous` flag, overlay placement, nested-secret removal with the union denylist)
+  and `test_dojo_document.py::TestBuildDocument` — node/link counts equal device/link counts,
+  labels equal hostnames verbatim, role → type and state → status tables applied, interface names
+  land in `fromLabel`/`toLabel`, overlay VLAN/bandwidth and derived subnet land in link fields with
+  `showMeta: true`, every emitted key is in the recorded projection (contracts §Converter)
+  (FR-001..004, FR-014, SC-001)
 - [ ] T011 [P] [US1] Add registration assertions to `tests/topology-dojo/run-tests.sh` — key
   present, `command == "npx"`, args pin `mcp-remote@0.14.2` (or `url` form if T005 flipped it),
   no `Authorization` header, no literal token, no `mcp-servers/topology-dojo*` directory exists
@@ -101,9 +111,10 @@ story's tests use.
 - [ ] T013 [US1] Write the SKILL.md workflow section: discover → `describe_capabilities` +
   `layout_guidelines` (+ `get_authoring_guidance` hosted) → convert → `import_topology` →
   `validate_topology` → `balance_topology`/`tidy_topology` → re-validate → `inspect_render` →
-  `render_svg` once per page → write `workspace/output/topology-dojo/<ts>-<slug>.{json,svg}` →
-  Sync Report. State the page-index rule (always explicit) and the "never render after every
-  edit" rule (FR-006..008, FR-016)
+  `render_svg` once per page → `get_topology` (full) read-back → write
+  `workspace/output/topology-dojo/<document_identity>-<ts>.{json,svg}` where the `.json` is the
+  read-back document, never the converter's pre-import object → Sync Report. State the page-index
+  rule (always explicit) and the "never render after every edit" rule (FR-006..008, FR-016)
 - [ ] T014 [US1] Write the SKILL.md "Connection modes" section — hosted default, first-run OAuth
   via `mcp-remote`, headless port-forward recipe, `~/.mcp-auth/` as the credential store and how to
   revoke; local mode capabilities table from data-model.md (FR-010/011/015)
@@ -120,19 +131,24 @@ story's tests use.
   operation lists; endpoint swap → same link identity; `large.json` → exactly one batch at
   `max_ops=200`; `max_ops=250, max_bytes=524288` respected; batches close at node boundaries so no
   link precedes its endpoints (FR-004/005, SC-002/003)
-- [ ] T017 [P] [US2] `test_dojo_document.py::TestDiffAbsentAtSource` — elements with a matching
-  `source.system` missing from the snapshot are listed; foreign-source and unsourced elements are
-  ignored (US2 scenario 3)
+- [ ] T017 [P] [US2] `test_dojo_document.py::TestDiffPage` — fed a fixture **page** (the
+  `get_topology(pageIndex)` shape, since `summary: true` carries no elements): unchanged →
+  all `unchanged`; added device → one `to_create`; removed device → one `absent_at_source`
+  (foreign-source and unsourced elements ignored); changed status → one `to_update`; the
+  parallel fixture → `ambiguous_links` populated (US2 scenario 3, FR-008a)
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement `build_upsert_batches()` and `diff_absent_at_source()` in
-  `dojo_document.py`; `set` includes `type/x/y` (node) and `type/from/to` (link) so creation
-  succeeds when no match exists; `fetchedAt` refreshed every sync
-- [ ] T019 [US2] SKILL.md "Update an existing diagram" section: find the draft by title via
-  `list_topologies`, read `get_topology(summary)` for the diff, one `edit_topology` batch per
-  chunk, report created/updated/unchanged/absent, removal only on confirmation via
-  `remove_element`; reconciliation colours + `set_legend` (FR-009)
+- [ ] T018 [US2] Implement `build_upsert_batches()` and `diff_page()` in `dojo_document.py`;
+  `set` includes `type/x/y` (node) and `type/from/to` (link) so creation succeeds when no match
+  exists; `fetchedAt` refreshed every sync; counters come from `diff_page`, and the batch result
+  is only checked for `applied == len(operations)` (FR-008a)
+- [ ] T019 [US2] SKILL.md "Update an existing diagram" section: locate the document by its stable
+  identity — hosted: `list_topologies` title match; local: newest
+  `<document_identity>-*.json` artifact re-imported first — then `get_topology(pageIndex)` for
+  each affected page, `diff_page`, one `edit_topology` batch per chunk, report
+  created/updated/unchanged/absent/ambiguous from the diff, removal only on confirmation via
+  `remove_element`; overlay reconciliation colours + `set_legend` (FR-004a, FR-009)
 - [ ] T020 [US2] Reciprocal handoff lines: `workspace/skills/pyats-topology/SKILL.md`
   ("Integration with Diagram Tools" + a "Topology Dojo diagram" subsection beside the draw.io
   one), `workspace/skills/netbox-reconcile/SKILL.md` table row, `clab-lab-management/SKILL.md`
@@ -145,8 +161,10 @@ story's tests use.
 ### Tests for User Story 3
 
 - [ ] T021 [P] [US3] `tests/topology-dojo/test_share_guard.py` — `assert_confirmed(False)`
-  raises; `scan_internal_addresses` finds RFC 1918, link-local, loopback and ULA strings in labels
-  and meta and nothing else; `gait_payload` never contains a URL body or token (FR-012, SC-004)
+  raises; `scan_internal_addresses` walks a fetched document recursively and reports a link whose
+  only internal value is `subnet: "10.1.1.0/30"`, plus link-local, loopback and ULA strings at any
+  depth, and nothing for documentation-range addresses; `gait_payload` never contains a URL body
+  or token (FR-012, SC-004)
 - [ ] T022 [P] [US3] `run-tests.sh` asserts the SKILL.md states: public for 30 days, explicit
   confirmation before `share_topology`, internal-address warning, GAIT record, re-publish mints a
   new URL, rate-limit "retry after" is reported not retried
@@ -155,9 +173,10 @@ story's tests use.
 
 - [ ] T023 [US3] Implement `workspace/skills/topology-dojo-diagram/share_guard.py`
   (contracts §Share guard)
-- [ ] T024 [US3] SKILL.md "Share, list, revoke" section with the two-layer gate (conversational
-  "yes" + `confirmed: true`), `gait_record_turn` payload, `list_shares`/`unpublish_topology`,
-  and the local-mode refusal with the SVG/JSON alternative (FR-012, FR-015)
+- [ ] T024 [US3] SKILL.md "Share, list, revoke" section: `get_topology` (full) immediately
+  before publishing → recursive scan → show the list → two-layer gate (conversational "yes" +
+  `confirmed: true`) → `share_topology` → `gait_record_turn` payload; `list_shares`/
+  `unpublish_topology`; the local-mode refusal with the SVG/JSON alternative (FR-012, FR-015)
 
 ---
 
@@ -186,14 +205,23 @@ story's tests use.
 
 - [ ] T029 [US5] Add `component_install_topology_dojo()` to `scripts/lib/install-steps.sh`:
   `read -r -p` gate; hosted branch pre-caches `mcp-remote@0.14.2` via `npm cache add` and prints
-  the first-run OAuth note + headless recipe; local branch requires `node`/`npm` (skip with a
-  warning otherwise), `git clone`/`git -C pull` into `$MCP_DIR/topology-dojo`, `npm ci`, then
-  `openclaw mcp set topology-dojo-mcp '{"command":"npm","args":["run","--silent","mcp"],"cwd":"<clone>"}'`
-  guarded by `command -v openclaw`; echoes the `.env` lines (`docs/ADDING-AN-MCP.md` step 4)
+  the first-run OAuth note + headless recipe; local branch requires `node` ≥ 18 and `npm` (skip
+  with a warning otherwise) and an operator-supplied clone at `TOPOLOGY_DOJO_DIR` with
+  `package.json` and an installed `node_modules` — it **never** runs `git clone` or `npm ci`
+  itself while upstream is unlicensed (research R9; FR-021), and prints what to pre-stage when the
+  directory is missing or incomplete; on success `openclaw mcp set topology-dojo-mcp
+  '{"command":"npm","args":["run","--silent","mcp"],"cwd":"<TOPOLOGY_DOJO_DIR>"}'` guarded by
+  `command -v openclaw`; echoes the `.env` lines (`docs/ADDING-AN-MCP.md` step 4). Prerequisite
+  for any future auto-clone branch: a LICENSE in `robertsonc/topology-dojo`
 - [ ] T030 [P] [US5] Create `tests/topology-dojo/live_local.sh` — when `TOPOLOGY_DOJO_DIR` is
   set and `node_modules` exists, drive `npm run --silent mcp` through `scripts/mcp-call.py`:
   `import_topology(small.json)` → `validate_topology` → `render_svg`, assert `valid: true` and an
   `<svg` prefix; otherwise print the skip reason. Never in the default suite path
+- [ ] T030a [P] [US5] Air-gapped acceptance: `live_local.sh` runs the loop above under an
+  environment that makes network access fail loudly (`npm_config_offline=true`,
+  `HTTP_PROXY`/`HTTPS_PROXY` pointed at an unroutable address, `--network-family` where
+  supported) and asserts it still passes — proving install-time registration plus the sync loop
+  need no connectivity once the clone is pre-staged (US5 scenario 3)
 - [ ] T031 [US5] SKILL.md local-mode notes: drafts are process-lifetime, the JSON artifact is the
   record, re-import path (`import_topology` with `format: "topology-dojo"`)
 
@@ -231,8 +259,9 @@ story's tests use.
 - [ ] T037 [P] `SOUL-SKILLS.md`: `### topology-dojo-diagram` operational paragraph beside
   `### drawio-diagram` (~929) and an index-table row (~1493)
 - [ ] T038 [P] `TOOLS.md`: `## Topology Dojo (topology-dojo-mcp)` section — modes, tool table
-  (contracts §Tools), rate limits, `### Boundaries`; add `topology-dojo-diagram` to the
-  four-name diagram list at ~616
+  (contracts §Tools), rate limits, `### Boundaries`, and a one-paragraph note that the registered
+  entry is a declared exception to `docs/ADDING-AN-MCP.md`'s Remote/OAuth default (research R13);
+  add `topology-dojo-diagram` to the four-name diagram list at ~616
 - [ ] T039 [P] `scripts/verify-catalog-coverage.py`: `GROUPED_CONFIG_EXACT["topology-dojo-mcp"] = "topology-dojo"`
 - [ ] T040 [P] `ui/netclaw-visual/server.js`: node entry
   (`{ id: 'topology-dojo', name: 'Topology Dojo', category: 'Visualization', prefixes: ['topology-dojo-'], color: '#4cc9f0', transport: 'mixed', toolEstimate: 34, description: '…' }`),
@@ -298,7 +327,13 @@ story's tests use.
 
 ## Notes
 
-- Total tasks: 46. Two are research verifications (T005, T006) whose outcomes are written back
+- Total tasks: 47. Two are research verifications (T005, T006) whose outcomes are written back
   into `research.md` before the dependent tasks start.
+- Revision note (2026-09-20, after the owner's adversarial review of PR #1): T007/T008/T010
+  now target the real canonical model through an adapter with fixtures serialized from
+  `_build_snapshot()`; T013 persists the read-back document; T017–T019 diff from
+  `get_topology(pageIndex)` with counters derived locally and a stable document identity;
+  T021/T024 scan the fetched document recursively; T029 no longer clones or installs; T030a
+  added for the air-gapped path; T038 records the ADDING-AN-MCP exception.
 - `docs/ADDING-AN-MCP.md`'s "five more artifacts" for iN2N members are out of scope (research R12);
   T041 keeps a future member regeneration correct.

@@ -31,6 +31,26 @@
 - [x] Feature meets measurable outcomes defined in Success Criteria
 - [x] No implementation details leak into specification
 
+## Review round 1 (2026-09-20, owner's adversarial review of PR #1)
+
+All eleven findings verified against primary sources and addressed in the artifacts:
+
+- [x] data-model.md now consumes the real canonical dataclasses (`link_id`, `endpoint_a/b`,
+      `interface_name`, `source_label`, `created_at`) through an explicit adapter + optional overlay
+- [x] stable document identity replaces the per-run `snapshot_id` in titles and lookups (FR-004a)
+- [x] Sync Diff fetches pages with `get_topology(pageIndex)`; summary form never used for diffs
+- [x] created/updated/unchanged derived locally, never from `edit_topology` results (FR-008a)
+- [x] the `.json` artifact is the read-back canonical document after tidy (FR-008)
+- [x] share scan is recursive over the fetched document, link `subnet` included (FR-012)
+- [x] sanitizer is the union denylist, applied recursively (FR-014)
+- [x] link identity prefers a real `link_id`; `link-<n>` treated as absent; fallback flagged
+- [x] "no GitHub identity" and "air-gapped" separated; T030a no-network acceptance test
+- [x] installer never clones/installs while upstream is unlicensed (FR-021, T029)
+- [x] registered Remote/OAuth entry declared as an exception to `docs/ADDING-AN-MCP.md` (R13, FR-019)
+- [ ] CI corroboration: the fork has GitHub Actions disabled (no workflow runs exist on any
+      branch), so `verify-spec-artifacts.py` is only verified locally until the branch is opened
+      against a repository where the workflow runs
+
 ## Open items carried into implementation
 
 - [ ] research R2: native OAuth in OpenClaw's MCP client — verified by T005
