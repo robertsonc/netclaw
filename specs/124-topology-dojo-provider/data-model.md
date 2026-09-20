@@ -114,27 +114,29 @@ Rules:
 
 ## Sync Diff *(computed locally, before the batch)*
 
-Input: the affected page(s) fetched with `get_topology(pageIndex)` — the summary form returns
-counts only and cannot feed this — and the adapted snapshot.
+Input: the sourced-element listing — `get_topology(sources: true, system: <source_kind>)` for a
+draft or `get_workspace_elements(sourcedOnly: true)` per affected workspace page (Topology Dojo
+proposal 0006; rows are `{id, kind, source, label?}`, no geometry) — and the adapted snapshot.
 
 | Output | Derivation |
 |---|---|
 | `to_create[]` | intended elements whose source identity matches no fetched element of that kind |
-| `to_update[]` | matched elements where any intended `set` field differs from the fetched value |
-| `unchanged[]` | matched elements with no differing field (still upserted, to refresh `fetchedAt`) |
+| `to_update[]` | matched elements whose intended label or source differs from the listed row (the listing carries no geometry, so a geometry-only change is `unchanged`) |
+| `unchanged[]` | matched elements with no listed field differing (still upserted, to refresh `fetchedAt`) |
 | `absent_at_source[]` | fetched elements whose `source.system == source_kind` with no intended counterpart; never removed without confirmation |
 | `ambiguous_links[]` | identities that fell to precedence rule 3 |
 
-Counters in the Sync Report come from this diff only. `edit_topology` returns `{applied,
-results: [{op, id, pageIndex}]}` and drops `upsert_by_source`'s `created` flag, so the batch
-result is used solely to assert `applied == len(batch)`.
+`created` in the Sync Report comes from the batch result (`edit_topology` returns
+`created: true|false` per `upsert_by_source` op; a proposal's `summary.byType` reports
+`element.add` vs `element.patch`) and is cross-checked against `to_create`; updated / unchanged /
+absent come from this diff only.
 
 ## Sync Batch
 
 | Field | Type | Notes |
 |---|---|---|
 | `index` | int | 0-based |
-| `operations[]` | list | `{op: "upsert_by_source", kind, source, set}` — ≤ 200 for a draft, ≤ 250 and ≤ 512 KiB serialized for a workspace proposal |
+| `operations[]` | list | draft: `{op: "upsert_by_source", kind, source, set}` ≤ 200 per `edit_topology`; workspace: `{type: "element.upsert", pageId, kind (plural), source, element}` ≤ 250 and ≤ 512 KiB per proposal |
 | `outcome` | `applied` \| `failed` \| `skipped` | filled after the call; a failed batch stops the sync and is reported |
 
 Ordering inside a batch: nodes first, then links, then zones, split by count at element-kind
@@ -165,7 +167,7 @@ boundaries so no link precedes an endpoint and no zone precedes a member.
 | authoring guidance / preferences | yes (when enabled on the deployment) | no |
 | rate limits | 120 writes/min, 8 shares/5 min | none (size caps only) |
 | network needed at run time | yes | no |
-| how the server is reached | `url` + `Bearer ${TOPOLOGY_DOJO_API_KEY}` (fallback: `npx mcp-remote`, cached by the installer) | operator-supplied clone at `TOPOLOGY_DOJO_DIR` with dependencies installed; pre-staged on air-gapped hosts |
+| how the server is reached | `url` + `Bearer ${TOPOLOGY_DOJO_API_KEY}` (deployment must have `API_KEYS_ENABLED`; no other path) | operator-supplied clone at `TOPOLOGY_DOJO_DIR` with dependencies installed; pre-staged on air-gapped hosts |
 
 Selected by `TOPOLOGY_DOJO_MODE` (`hosted` default, `local`); the installer rewrites the server
 registration for local mode.

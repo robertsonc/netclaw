@@ -11,11 +11,12 @@ user-minted Topology Dojo API key (proposal 0005) by variable reference, the Glo
 }
 ```
 
-Fallback for a deployment without `API_KEYS_ENABLED` (written by the installer when the operator
-chooses it, research R2): `{"command": "npx", "args": ["-y", "mcp-remote@0.14.2", "<url>"]}`.
+There is no other hosted credential path: a deployment without `API_KEYS_ENABLED` cannot be used
+in hosted mode (research R2). Registering a remote integration here is a declared classification
+against `docs/ADDING-AN-MCP.md`'s table (research R13).
 
-Registering a remote integration here is a declared classification against
-`docs/ADDING-AN-MCP.md` (research R13).
+Requires Topology Dojo with proposals 0005 and 0006 merged (`describe_workspace_operations`
+reports `operationSchemaRevision: 2`; `get_topology` accepts `sources`).
 
 Local form (written by the installer with `openclaw mcp set` from an operator-supplied clone at
 `TOPOLOGY_DOJO_DIR`, never tracked — path is user-specific):
@@ -45,9 +46,9 @@ with text `Error: <message>`.
 |---|---|---|
 | `import_topology` | `{json: <Dojo Document>, title, format: "topology-dojo"}` | first sync — returns `{id}` |
 | `list_topologies` | `{}` | hosted: find the existing draft whose title equals the stable document identity title |
-| `get_topology` | `{topologyId, pageIndex}` | fetch each affected page (with element `source` fields) for the local Sync Diff; `summary: true` returns counts only and is never used for the diff |
+| `get_topology` | `{topologyId, sources: true, system?: <source_kind>, pageIndex?}` | the Sync Diff input: `{title, pageCount, pages: [{index, id, name, elements: [{id, kind, source, label?}]}]}` — sourced elements only, no geometry; `summary: true` returns counts only and is never used for the diff |
 | `get_topology` | `{topologyId}` | full read-back after the final validate/tidy pass — this is what is written to the `.json` artifact, and what the share scan walks |
-| `edit_topology` | `{topologyId, pageIndex, operations: [{op: "upsert_by_source", kind, source, set}, ...]}` | re-sync; ≤ 200 ops; atomic per call; result `{applied, results: [{op, id, pageIndex}]}` — no `created` flag survives, so counters come from the local Sync Diff and the result only confirms `applied == len(operations)` |
+| `edit_topology` | `{topologyId, pageIndex, operations: [{op: "upsert_by_source", kind, source, set}, ...]}` | re-sync; ≤ 200 ops; atomic per call; result `{applied, results: [{op, id, pageIndex, created}]}` — `created` is authoritative for the created count; updated/unchanged come from the local Sync Diff |
 | `remove_element` | `{topologyId, elementId, cascade: true}` | only after the engineer confirms removal of absent-at-source elements |
 | `set_legend` | `{topologyId, show: true, position: "br"}` | when any link carries reconciliation status |
 | `set_document_title` | `{topologyId, title}` | when the engineer renames |
@@ -81,10 +82,10 @@ node and `type/from/to` for a link when the element does not exist yet.
 |---|---|---|
 | `list_workspaces` | `{}` | skip entries with `migrated: false` and tell the engineer why |
 | `get_workspace_manifest` | `{workspaceId}` | remember `revision`, page ids, `operationSchemaRevision` |
-| `describe_workspace_operations` | `{}` | once per `operationSchemaRevision`; limits `{maxOperations: 250, maxSerializedBytes: 524288}` |
+| `describe_workspace_operations` | `{}` | once per `operationSchemaRevision`; must report revision ≥ 2 (has `element.upsert`); limits `{maxOperations: 250, maxSerializedBytes: 524288}` |
 | `get_workspace_changes` | `{workspaceId, sinceRevision, limit?, detail?: "summary"}` | before proposing, and after a conflict |
-| `get_workspace_elements` | `{workspaceId, pageId, elementIds?, kinds?, cursor?, limit?}` | only the affected page |
-| `propose_workspace_changes` | `{workspaceId, baseRevision, operationId, title, rationale, operations}` | default write path |
+| `get_workspace_elements` | `{workspaceId, pageId, sourcedOnly: true, kinds?, cursor?, limit?}` | the workspace Sync Diff input — only the affected page, only sourced elements, paginated by `nextCursor` |
+| `propose_workspace_changes` | `{workspaceId, baseRevision, operationId, title, rationale, operations: [{type: "element.upsert", pageId, kind, source, element, afterElementId?}, ...]}` | default write path; every op is an upsert keyed by source identity, ≤ 250 ops / 512 KiB; `proposal.summary.byType` gives `element.add` vs `element.patch` counts |
 | `apply_workspace_changes` | same minus title/rationale | only when the engineer states a live page lease is granted |
 | `create_checkpoint` / `list_checkpoints` | `{workspaceId, name}` / `{workspaceId}` | before a large proposal, when asked |
 
@@ -116,7 +117,9 @@ Guarantees asserted by `tests/topology-dojo/test_snapshot_adapter.py`:
 def build_document(adapted: AdaptedSnapshot, *, split_by_site: bool = False) -> dict   # Dojo Document (data-model.md)
 def build_upsert_batches(adapted: AdaptedSnapshot, *, page_index: int = 0,
                          max_ops: int = 200, max_bytes: int | None = None) -> list[list[dict]]
-def diff_page(fetched_page: dict, adapted: AdaptedSnapshot) -> SyncDiff   # to_create / to_update / unchanged / absent_at_source / ambiguous_links
+def diff_sourced(listing: list[dict], adapted: AdaptedSnapshot) -> SyncDiff   # input: {id, kind, source, label?} rows from get_topology(sources) or get_workspace_elements(sourcedOnly); output: to_create / to_update / unchanged / absent_at_source / ambiguous_links
+def build_workspace_batches(adapted: AdaptedSnapshot, *, page_id: str, max_ops: int = 250,
+                            max_bytes: int = 524288) -> list[list[dict]]   # element.upsert ops (kind is the plural collection name)
 def slug(text: str) -> str                                        # deterministic element-id component
 ROLE_TO_TYPE, STATE_TO_STATUS, RECONCILIATION_COLOR                # documented tables (research R4)
 ```
@@ -125,8 +128,11 @@ Guarantees asserted by `tests/topology-dojo/test_dojo_document.py`:
 - node count == device count; link count == link count; labels == hostnames (SC-001)
 - `build_upsert_batches(a)` twice → identical output; identities stable under endpoint swap (SC-002)
 - 60/90 fixture → 1 batch at `max_ops=200`; 250/512 KiB proposal limits respected when set (SC-003)
-- `diff_page` against a fixture page: unchanged fixture → all `unchanged`; one added device → one
-  `to_create`; one removed device → one `absent_at_source`; a changed status → one `to_update`
+- `diff_sourced` against a fixture listing: unchanged fixture → all `unchanged`; one added device
+  → one `to_create`; one removed device → one `absent_at_source`; a changed label → one
+  `to_update`; a geometry-only change → `unchanged` (the listing carries no geometry)
+- `build_workspace_batches` emits only `element.upsert` ops, plural `kind`, the same source
+  identities as the draft batches, and respects 250 ops / 512 KiB
 - every emitted field name is in the recorded projection of `src/pages/model.ts` /
   `src/vendor/topology-ds.ts` (the schema drift check)
 

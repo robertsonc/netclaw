@@ -19,12 +19,12 @@
   same files that name draw.io today. See research.md R1.
 - Q: Topology Dojo's hosted MCP endpoint is OAuth 2.1 with GitHub as the identity provider and has
   no API-key path. How does an unattended NetClaw authenticate? → A: **Two connection modes, one
-  registered server key.** Hosted mode (default) authenticates with a user-minted Topology Dojo
-  API key sent as a bearer header (Topology Dojo proposal 0005, PR #247), the same shape NetClaw
-  uses for Globalping and Topolograph. Until a deployment enables that feature, the `mcp-remote`
-  stdio bridge NetClaw already ships for IP Fabric and ThousandEyes is the fallback: it completes
-  the OAuth flow once interactively and caches tokens on disk. Local mode runs Topology Dojo's own
-  unauthenticated stdio server from a clone the operator supplies. See research.md R2/R3.
+  registered server key.** Hosted mode (default) authenticates with a user-minted, scoped Topology
+  Dojo API key sent as a bearer header (Topology Dojo proposal 0005, robertsonc/topology-dojo#247),
+  the same shape NetClaw uses for Globalping and Topolograph; a deployment must have
+  `API_KEYS_ENABLED`. No OAuth bridge is shipped or documented (decision 2026-09-20: the bridge
+  fallback was dropped to keep one auth path). Local mode runs Topology Dojo's own unauthenticated
+  stdio server from a clone the operator supplies. See research.md R2/R3.
 - Q: `share_topology` publishes a public, unauthenticated 30-day snapshot. Is that an "external
   communication" under Constitution Principle XIV? → A: **Yes.** Sharing is opt-in, requires
   explicit per-invocation confirmation in the same conversation, produces a GAIT record
@@ -37,12 +37,19 @@
   Automatic clone-at-install (the Percepxion/RADKit precedent) is a follow-up gated on that
   license. See research.md R9.
 - Q: `docs/ADDING-AN-MCP.md` classifies Remote/OAuth integrations as external, with no
-  `config/openclaw.json` entry. This plan registers a bridged stdio entry. Which is it? → A: **A
-  declared exception.** The integration is Remote/OAuth by that taxonomy, but it is registered
-  because one server key must serve both the hosted (bridged) and local (stdio) modes, the HUD and
-  startup check need a registered key, and repo precedent is already mixed (Globalping, Meraki and
-  ThousandEyes Official are all registered `url` entries). The exception is recorded in research.md
-  R13 and FR-019 is worded accordingly; the plan does not claim unqualified adherence.
+  `config/openclaw.json` entry. Where does this one sit? → A: **A registered bearer-token remote,
+  declared as such.** With API keys the entry is exactly the `globalping-mcp` / `topolograph-mcp`
+  shape the repo already registers; one server key must also serve local mode, and the HUD and
+  startup check need a registered key. The guide's table literally lists Remote/OAuth as
+  external, so research.md R13 records the classification and FR-019 is worded accordingly rather
+  than claiming unqualified adherence.
+- Q: Topology Dojo's shared workspaces had no source-keyed write and no cheap sourced-element
+  listing; should NetClaw work around that? → A: **No, fix it upstream first** (decision
+  2026-09-20). Topology Dojo proposal 0006 (robertsonc/topology-dojo#248) adds `element.upsert`
+  to the workspace vocabulary (schema revision 2), `get_topology sources:true`,
+  `get_workspace_elements sourcedOnly:true`, and `created` outcomes in `edit_topology` results.
+  This spec targets that surface; the id-resolution and page-hydration workarounds are gone. See
+  research.md R5/R7.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -156,7 +163,11 @@ appears in the owner's review list and that no revision advanced until accepted.
 **Acceptance Scenarios**:
 
 1. **Given** a workspace id, **When** NetClaw prepares changes, **Then** it uses the manifest's
-   current revision as the base revision and a client-generated idempotent operation id.
+   current revision as the base revision, a client-generated idempotent operation id, and
+   `element.upsert` operations keyed by source identity, so re-submitting the same discovery
+   yields patches, not duplicates.
+1a. **Given** the manifest reports an `operationSchemaRevision` below 2, **When** NetClaw prepares
+   a proposal, **Then** it stops and reports that the deployment predates `element.upsert`.
 2. **Given** the workspace is a legacy draft not yet handed off, **When** NetClaw tries a workspace
    read, **Then** it reports that the owner must open it in the browser first, and stops.
 3. **Given** a proposal conflicts with a concurrent browser edit, **When** submitted, **Then**
@@ -233,8 +244,9 @@ files, and `document-generation`'s routing table.
   or role tier) or report the cap rather than retrying the same page.
 - Mutating-tool rate limit (120 per 60 s per user on the hosted deployment): batches, not
   per-element calls, so a full sync is a handful of quota units.
-- The hosted OAuth token expires or was never obtained on a headless host: NetClaw must surface the
-  bridge's login URL and the port-forward instruction, not a generic connection error.
+- The API key is missing, revoked, expired, or lacks the scope a story needs (for example
+  `share_topology` absent from `tools/list`): NetClaw must say which of those it is and point at
+  the deployment's `/keys` page, not report a generic connection error.
 - The document was handed off to a workspace after NetClaw last saw it: the private-draft tools
   return a typed error naming the workspace tools; NetClaw switches to the proposal path.
 - Page targeting: the `add_*` tools default to the most recently added page while `render_svg`
@@ -291,9 +303,12 @@ files, and `document-generation`'s routing table.
   the layout adjustments the render used) and the rendered SVG to the persistent NetClaw output
   directory as timestamped, uniquely named files that are never overwritten (the spec 046
   convention).
-- **FR-008a**: Created, updated and unchanged counts in the Sync Report MUST be derived locally by
-  diffing the fetched canonical page against the intended element state before the batch is sent,
-  because batch results carry only the operation name, element id and page index.
+- **FR-008a**: The Sync Report's counts MUST come from two sources and nothing else: `created`
+  from the batch result (`edit_topology` reports it per `upsert_by_source` op; a workspace
+  proposal's `summary.byType` reports `element.add` vs `element.patch`), and updated / unchanged /
+  absent-at-source from a local diff of the sourced-element listing (`get_topology sources:true`
+  for drafts, `get_workspace_elements sourcedOnly:true` for workspaces) against the adapted
+  snapshot, taken before the batch is sent.
 - **FR-009**: Reconciliation status supplied by the source MUST map to link colour using the
   existing NetClaw convention (green documented, yellow undocumented, red missing, orange mismatch)
   and MUST enable the document legend.
@@ -302,10 +317,10 @@ files, and `document-generation`'s routing table.
   server run from an operator-supplied clone) — under one registered server key.
 - **FR-011**: In hosted mode, authentication MUST use a user-minted Topology Dojo API key
   referenced by variable name (`TOPOLOGY_DOJO_API_KEY`) in a bearer header, never a literal in a
-  tracked file. Where the deployment has not enabled API keys, the system MUST fall back to the
-  deployment's OAuth flow through the `mcp-remote` bridge and MUST name the bridge's
-  cached-credential location so an operator can revoke it. The skill MUST tell the operator which
-  scopes the key needs per story (`share` for US3, `workspace` for US4; none for US1/US2).
+  tracked file, and no other hosted credential path is offered. The skill MUST tell the operator
+  which scopes the key needs per story (`share` for US3, `workspace` for US4; none beyond the
+  implicit `author` for US1/US2) and MUST recognise a scope gap from the absence of the tool in
+  `tools/list` rather than from a failed call.
 - **FR-012**: Publishing a public share link MUST require explicit confirmation in the same
   conversation, MUST be preceded by a recursive scan of the current server-side canonical
   document, fetched immediately before the publish call, across every string field (first-class
@@ -315,7 +330,9 @@ files, and `document-generation`'s routing table.
   — never the document contents.
 - **FR-013**: Writes to a shared Agent Workspace MUST be submitted as named proposals by default;
   direct application MUST only be attempted when the engineer states that a live page lease is
-  granted, and a conflict MUST be reported, not retried blindly.
+  granted, and a conflict MUST be reported, not retried blindly. Every element written to a
+  workspace MUST be expressed as an `element.upsert` operation keyed by source identity, so the
+  coordinator, not NetClaw, resolves whether it is an add or a patch.
 - **FR-014**: Credential-shaped metadata keys MUST be stripped from every device, interface and
   link before any data is sent to Topology Dojo in either mode, using at least the union of the
   existing NetClaw denylist (password, secret, credential, credentials, api_key, apikey, token,
@@ -335,9 +352,10 @@ files, and `document-generation`'s routing table.
   `browser-viz-verify`, `msgraph-visio`) MUST gain a reciprocal Topology Dojo handoff line.
 - **FR-019**: The integration MUST follow `docs/ADDING-AN-MCP.md` and pass
   `scripts/reconcile-mcp.py` with exit 0, including the documented count claims, with one declared
-  exception recorded in research R13: by that guide's taxonomy this is a Remote/OAuth integration
-  and would be external, but it is registered as a bridged stdio entry so one key serves both
-  modes. The exception MUST be stated in the spec, TOOLS.md and the PR, not implied.
+  classification recorded in research R13: by that guide's table a remote integration would be
+  external, but this one is a registered bearer-token `url` entry like `globalping-mcp`, so that
+  one key also serves local mode and the HUD and startup check see it. The classification MUST be
+  stated in the spec, TOOLS.md and the PR, not implied.
 - **FR-020**: An offline contract test suite MUST cover the converter (mapping, idempotent source
   identities, chunking, sanitization, determinism), the registration shape, and the SKILL.md
   safety language, and MUST be declared in `tests/contract-suites.json`.
@@ -390,9 +408,9 @@ files, and `document-generation`'s routing table.
 
 - The maintainer's hosted deployment at `https://topology-dojo.harnessed.cloud/mcp` remains the
   default URL; operators can point `TOPOLOGY_DOJO_MCP_URL` at a self-hosted deployment or staging.
-- Topology Dojo's API key feature (proposal 0005, robertsonc/topology-dojo#247) is enabled on the
-  deployment NetClaw targets; until production activates it, the `mcp-remote` OAuth bridge is the
-  documented fallback and the skill does not change between the two.
+- The target deployment runs Topology Dojo with proposals 0005 and 0006 merged and
+  `API_KEYS_ENABLED` active (robertsonc/topology-dojo#247 and #248). Until then the hosted mode
+  cannot authenticate; there is deliberately no bridge fallback.
 - OpenClaw's gateway MCP client supports `url` entries with a static `headers.Authorization`
   (precedent: `globalping-mcp`, `meraki-mcp`, `topolograph-mcp`); native OAuth dynamic client
   registration is not assumed.

@@ -24,15 +24,23 @@ boundary that today does not exist even between draw.io and the 3D tools
 that already name draw.io. Spec 121's pattern — one entry point, provenance reported in the
 response — is reused for the mode (hosted/local) rather than for provider selection.
 
-## R2: Hosted authentication is OAuth 2.1 + GitHub; an API-key path now exists behind a flag (satisfies FR-010/011)
+## R2: Hosted authentication is a user-minted Topology Dojo API key (satisfies FR-010/011)
 
-**Update 2026-09-20 (supersedes the bridge-first decision below).** Topology Dojo proposal 0005
-(`docs/proposals/0005-api-key-auth.md`, robertsonc/topology-dojo#247) adds user-tied API keys:
-a signed-in user mints a scoped, optionally expiring `tdk_…` key at `/keys`, and the OAuth
-provider's `resolveExternalToken` hook resolves it to the same `{id, login, name}` props a grant
-produces, so drafts, workspaces, quotas and share ownership are the user's own. It is gated by
-`API_KEYS_ENABLED` (staging on, production after its UAT-MCP-04). With it, the registration is the
-Globalping shape and no bridge is involved:
+At commit `4dddaca`, `worker/index.ts:50-57` wrapped the whole Worker in Cloudflare's
+`workers-oauth-provider` with `/mcp` as the protected route, GitHub as the upstream identity
+provider, and no static-credential path: `scripts/smoke.mjs:378-386` asserts an unauthenticated
+`POST /mcp` returns 401, and every non-MCP `/api/*` route authenticates with a browser session
+cookie. An unattended agent had only the browser OAuth hop (via a bridge such as `mcp-remote`).
+
+Topology Dojo proposal 0005 (`docs/proposals/0005-api-key-auth.md`, robertsonc/topology-dojo#247)
+closes that gap upstream: a signed-in user mints a scoped, optionally expiring `tdk_…` key at
+`/keys`, and the provider's `resolveExternalToken` hook resolves it to the same `{id, login,
+name}` props a grant produces, plus `auth: "api_key"` and `scopes`. Drafts, workspaces, quotas
+and share ownership are therefore the user's own. It is gated by the deployment's
+`API_KEYS_ENABLED` (staging on; production after the upstream UAT-MCP-04).
+
+**Decision**: the registration is the Globalping shape and nothing else — no bridge, no OAuth
+token cache on the NetClaw host, no headless recipe:
 
 ```json
 "topology-dojo-mcp": {
@@ -43,48 +51,10 @@ Globalping shape and no bridge is involved:
 ```
 
 Scopes map onto the stories: none beyond the implicit `author` for US1/US2, `share` for US3,
-`workspace` for US4; `live-data` is never needed by this skill. The bridge described next remains
-the fallback for a deployment that has not enabled the feature, and the skill is identical either
-way. Everything below this line was true at commit `4dddaca` and is kept as the record of why the
-upstream change was made.
-
-`worker/index.ts:50-57` wraps the whole Worker in Cloudflare's `workers-oauth-provider` with
-`apiRoute: '/mcp'`, `/authorize`, `/token`, `/register` (dynamic client registration) and
-discovery at `/.well-known/oauth-authorization-server`. `worker/default-handler.ts:473-550`
-redirects to GitHub (`scope=read:user`) and completes authorization with the GitHub numeric uid as
-the tenancy key. `scripts/smoke.mjs:378-386` asserts an unauthenticated `POST /mcp` returns 401.
-`src/mcp/README.md:41-47`: "no token to paste". Every non-MCP `/api/*` route authenticates with a
-browser session cookie, not a bearer token, so a REST fallback does not avoid the OAuth dance.
-
-**Consequence**: NetClaw's `url` + `headers.Authorization: Bearer ${VAR}` entry shape (Globalping,
-ThousandEyes, Topolograph) cannot be used as-is; there is no static bearer to reference.
-
-**Decision**: register a stdio entry that runs the `mcp-remote` bridge:
-
-```json
-"topology-dojo-mcp": {
-  "command": "npx",
-  "args": ["-y", "mcp-remote@0.14.2", "${TOPOLOGY_DOJO_MCP_URL:-https://topology-dojo.harnessed.cloud/mcp}"],
-  "env": { "TOPOLOGY_DOJO_MCP_URL": "${TOPOLOGY_DOJO_MCP_URL:-https://topology-dojo.harnessed.cloud/mcp}" }
-}
-```
-
-`mcp-remote` (MIT, 0.14.2 verified on npm in this session) performs discovery, dynamic client
-registration, PKCE, opens the browser once, and caches tokens under `~/.mcp-auth/`. NetClaw already
-ships it for IP Fabric (`scripts/ipfabric-enable.sh:190`) and ThousandEyes
-(`install-steps.sh:1452-1457`), and `scripts/check-package-references.py:58` names it as a
-package that passes the registry check. Pin the version: an `@latest` bridge is the one moving part
-between NetClaw and a remote OAuth server.
-
-**Unverified**: whether OpenClaw's gateway MCP client performs OAuth DCR natively for a bare
-`url` entry. If it does, the entry can become `{"url": "..."}` with no bridge; the skill does not
-change. Task T-research-1 in tasks.md checks this once, on a real gateway, before implementation.
-
-**Headless hosts**: the bridge's callback lands on `http://localhost:<port>/oauth/callback`. On a
-server with no browser, the operator runs the login once through an SSH port-forward
-(`ssh -L <port>:localhost:<port> host`, `npx mcp-remote <url> <port>`), or performs the first run on
-a workstation and treats `~/.mcp-auth` as a credential store (0700). Both paths are documented in
-the SKILL.md and installer output; neither is automated.
+`workspace` for US4; `live-data` is never needed by this skill. A key without a scope simply
+does not see that tool group in `tools/list`, which is how the skill detects a scope gap (FR-011).
+The `mcp-remote` OAuth bridge that an earlier revision of this research proposed was dropped on
+2026-09-20 (owner decision): one credential path, no npx package, no `~/.mcp-auth` state.
 
 ## R3: Local stdio mode exists, is unauthenticated, and is in-memory only (satisfies FR-010/015, US5)
 
@@ -205,15 +175,18 @@ the existing draft with `list_topologies` by that title; local mode re-imports t
 `<identity>-*.json` artifact before syncing. `snapshot_id` and `created_at` are provenance only:
 they go into `source.fetchedAt`, the artifact filename suffix, and the GAIT record.
 
-**Decision** — diff and counters. `get_topology(summary: true)` returns page names and element
-counts only (`src/mcp/tools.ts:420-446`), so it cannot feed a diff. The skill fetches each affected
-page with `get_topology(pageIndex)` and the converter diffs the sourced elements it finds against
-the adapted snapshot **before** sending the batch: elements absent at source are reported (removal
-is a separate, engineer-confirmed `remove_element` batch — US2 scenario 3), and created / updated /
-unchanged are computed locally by comparing the intended `set` against the fetched element.
-`edit_topology` compacts every result to `{op, id, pageIndex}` (`src/mcp/tools.ts:1420-1428`) and
-`upsert_by_source`'s own `created` flag does not survive, so no counter may be read from the
-batch result; the result is used only to confirm `applied` equals the batch length.
+**Decision** — diff and counters (updated 2026-09-20 for Topology Dojo proposal 0006). The skill
+fetches the sourced-element listing — `get_topology(topologyId, sources: true, system:
+<source_kind>)` for a draft (`{id, kind, source, label}` per page, no geometry), or
+`get_workspace_elements(sourcedOnly: true)` for a workspace page — and the converter diffs it
+against the adapted snapshot **before** sending the batch: elements absent at source are reported
+(removal is a separate, engineer-confirmed `remove_element` batch — US2 scenario 3) and
+updated / unchanged are decided locally from the intended `set` versus the listed element (label
+and source only, since the listing carries no geometry; a geometry-only change counts as
+unchanged). `created` comes from the batch itself: `edit_topology` now returns `created:
+true|false` per `upsert_by_source` op, and a workspace proposal's `summary.byType` reports
+`element.add` vs `element.patch`. `get_topology(summary: true)` still returns counts only and is
+never used for the diff.
 
 ## R6: Sharing is an outward publication and is gated (satisfies FR-012, Clarification Q3)
 
@@ -234,7 +207,7 @@ flow-path/policy-marker text are all covered — flagging RFC 1918, link-local (
 labels/meta would miss `subnet: "10.1.1.0/30"`. The default deliverable is the local SVG + JSON;
 the URL is only produced on request.
 
-## R7: Workspace writes are proposals by default (satisfies FR-013, US4)
+## R7: Workspace writes are proposals of `element.upsert` operations (satisfies FR-013, US4)
 
 `src/mcp/README.md:237-244`: agents are "Suggest only" by default; only the browser grants a
 ten-minute, page-scoped lease; `apply_workspace_changes` without one fails. Batches carry
@@ -244,14 +217,20 @@ proposals. Legacy drafts (`migrated: false` in `list_workspaces`) reject agent w
 until the owner opens them in the browser; `worker/mcp.ts:296-301` forbids agent-triggered
 migration.
 
-**Decision**: the skill's workspace path is manifest → (`describe_workspace_operations` once per
-`operationSchemaRevision`) → `get_workspace_changes` since last revision → `get_workspace_elements`
-for the affected page only → `propose_workspace_changes` with a title and rationale. Direct
-`apply_workspace_changes` is used only when the engineer states the lease is live. **Unverified**:
-whether `upsert_by_source` is among the 9 workspace operation types; if not, the converter emits
-`add_*`/`update_element` operations against ids read from `get_workspace_elements`, using the
-element `source` field for matching on the NetClaw side. Task T-research-2 settles this against
-a hosted workspace.
+At commit `4dddaca` the workspace vocabulary (`src/workspace/model.ts`) had nine stored operation
+types and no source-keyed write. Topology Dojo proposal 0006 (robertsonc/topology-dojo#248) adds
+`element.upsert` as an **input** operation (`operationSchemaRevision` 2): the coordinator
+normalizes each one, against the current document, into `element.add` or `element.patch` by
+`(system, kind, id)` before validation, conflict detection and storage. A requested `element.id`
+is honoured on create; the kind's create-required fields are the same table `upsert_by_source`
+uses; anchors cannot carry a source.
+
+**Decision**: the skill's workspace path is manifest (stop if `operationSchemaRevision < 2`) →
+`get_workspace_changes` since last revision → `get_workspace_elements` with `sourcedOnly: true`
+for the affected page (the diff input) → `propose_workspace_changes` whose operations are all
+`element.upsert`, with a title and rationale → read `summary.byType` for add vs patch counts.
+Direct `apply_workspace_changes` is used only when the engineer states the lease is live. NetClaw
+never resolves workspace element ids itself.
 
 ## R8: Rendering artifacts are SVG and flipbook HTML; PNG is browser-only (satisfies FR-007/008)
 
@@ -311,30 +290,20 @@ recorded in `contracts/topology-dojo-mcp.md`). An opt-in live-local check, gated
 `scripts/mcp-call.py` for `import_topology → validate_topology → render_svg` on a fixture. It is
 declared under `live` in `tests/contract-suites.json`, never in the default path.
 
-## R13: Registering a remote integration is a declared classification against `docs/ADDING-AN-MCP.md`
-
-**Update 2026-09-20.** With the API-key path (R2 update) the entry is a bearer-token remote
-exactly like `globalping-mcp` and `topolograph-mcp`, which the repo registers today. The
-classification below still holds — the guide's table literally says Remote/OAuth stays external —
-so the spec keeps declaring it rather than claiming unqualified adherence; the bridge-specific
-reason (3) applies only to the fallback form.
+## R13: A registered bearer-token remote, declared against `docs/ADDING-AN-MCP.md`'s table
 
 `docs/ADDING-AN-MCP.md:30-42` says Remote/OAuth integrations get **no** `config/openclaw.json`
-entry and are recorded in `EXTERNAL_INTEGRATIONS` with reason `remote/OAuth` (examples given:
-Zscaler, ThousandEyes official). Repo precedent is mixed: `zscaler-mcp`, `thousandeyes-official-mcp`,
-`globalping-mcp`, `meraki-mcp`, `topolograph-mcp` and `devnet-content-search` are all registered
-`url` entries in `config/openclaw.json` today, while Zoom Meetings (spec 118) and Datadog are
-external.
+entry and are recorded in `EXTERNAL_INTEGRATIONS` with reason `remote/OAuth`. Repo practice is
+different for bearer-token remotes: `globalping-mcp`, `meraki-mcp`, `topolograph-mcp`,
+`thousandeyes-official-mcp` and `zscaler-mcp` are registered `url` entries.
 
-**Decision**: register `topology-dojo-mcp`, and say so. Reasons: (1) one server key must serve both
-the hosted bridge and the local stdio server, and only a registered key can be rewritten by
-`openclaw mcp set` at install time; (2) the HUD node, `check-server-startup.py` and the contract
-suite's registration assertions all need a registered key; (3) the bridged form is stdio from
-OpenClaw's point of view, so `normalize-mcp-cwd.py` and the portability check apply cleanly. The
-cost: the integration counts as a config entry rather than an external one (which is what moves
-the computed MCP count from 172 to 173). This is recorded as an exception in spec.md (FR-019,
-Assumptions), in TOOLS.md's section for the server, and in the PR; the plan does not claim
-unqualified adherence to the guide.
+**Decision**: register `topology-dojo-mcp` as a `url` + bearer entry, and say so. Reasons: (1) it
+is the same shape as those five; (2) one server key must also serve local mode, and only a
+registered key can be rewritten by `openclaw mcp set` at install time; (3) the HUD node,
+`check-server-startup.py` and the contract suite's registration assertions need a registered key.
+The cost: the integration counts as a config entry rather than an external one (which is what
+moves the computed MCP count from 172 to 173). Recorded in spec.md (FR-019, Assumptions), in
+TOOLS.md's section for the server, and in the PR.
 
 ## R12: What this feature deliberately does not do
 

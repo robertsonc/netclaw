@@ -2,14 +2,12 @@
 
 ## Prerequisites
 
-- Node.js 18+ and npm (`npx` is how the bridge and the local server both start).
+- Node.js 18+ and npm only for local mode (the operator's own `npm run mcp`).
 - **Hosted mode** (default): sign in to Topology Dojo with GitHub once, open `/keys`, mint a key
   with the scopes you need (`share` for public links, `workspace` for proposals), and put it in
-  `.env` as `TOPOLOGY_DOJO_API_KEY`. No browser is needed on the NetClaw host. If the deployment
-  has not enabled API keys, the `mcp-remote` fallback applies: the first tool call opens a browser
-  for the OAuth flow once and caches tokens under `~/.mcp-auth/`; on a headless host, forward the
-  callback port first (`ssh -L 3334:localhost:3334 <host>` then
-  `npx -y mcp-remote@0.14.2 https://topology-dojo.harnessed.cloud/mcp 3334`).
+  `.env` as `TOPOLOGY_DOJO_API_KEY`. No browser is needed on the NetClaw host. The deployment must
+  run Topology Dojo with proposals 0005 and 0006 and `API_KEYS_ENABLED`; there is no other hosted
+  credential path.
 - **Local mode**: `TOPOLOGY_DOJO_MODE=local` and `TOPOLOGY_DOJO_DIR` pointing at your own clone
   of `robertsonc/topology-dojo` with `npm ci` already run (on an air-gapped host, pre-stage the
   clone with its `node_modules` from a connected machine of the same platform). The installer
@@ -41,10 +39,10 @@ Expected flow:
 ```
 
 NetClaw finds the document by its stable identity (source kind + label, never the per-run
-snapshot id), fetches the affected page with `get_topology(pageIndex)`, diffs it locally, and
-emits one `edit_topology` call of `upsert_by_source` operations. Existing elements are patched in
-place, new ones created, nothing duplicated. Devices that vanished at the source are listed as
-"absent at source"; NetClaw removes them only if you say so.
+snapshot id), fetches the sourced-element listing with `get_topology(sources: true)`, diffs it
+locally, and emits one `edit_topology` call of `upsert_by_source` operations. Existing elements
+are patched in place, new ones created (the results say which), nothing duplicated. Devices that
+vanished at the source are listed as "absent at source"; NetClaw removes them only if you say so.
 
 ## 3. Share with a stakeholder (hosted only)
 
@@ -64,9 +62,10 @@ record. `"list my Topology Dojo shares"` / `"revoke that link"` map to `list_sha
 "Add the two new leaf switches to Sam's fabric workspace"
 ```
 
-Manifest → changes since last seen → elements on the affected page → `propose_workspace_changes`
-with a title and rationale. The owner reviews in the browser. NetClaw only uses
-`apply_workspace_changes` if you say the page lease is live.
+Manifest → changes since last seen → sourced elements on the affected page →
+`propose_workspace_changes` made of `element.upsert` operations, with a title and rationale; the
+coordinator decides add vs patch by source identity. The owner reviews in the browser. NetClaw
+only uses `apply_workspace_changes` if you say the page lease is live.
 
 ## 5. Choosing draw.io instead
 

@@ -51,11 +51,20 @@ All eleven findings verified against primary sources and addressed in the artifa
       branch), so `verify-spec-artifacts.py` is only verified locally until the branch is opened
       against a repository where the workflow runs
 
+## Rework round 2 (2026-09-20, after Topology Dojo #247 and #248)
+
+- [x] hosted auth = user-minted API key by variable reference, the only hosted path; `mcp-remote`
+      bridge, headless recipe and token-cache guidance removed (FR-011, R2, R13)
+- [x] workspace writes = `element.upsert` operations; NetClaw never resolves workspace ids
+      (FR-013, R7, T006/T025/T027/T028)
+- [x] Sync Diff input = `get_topology sources:true` / `get_workspace_elements sourcedOnly:true`;
+      `created` taken from batch results (FR-008a, R5, T017/T018/T019)
+
 ## Open items carried into implementation
 
-- [ ] research R2: the target deployment has `API_KEYS_ENABLED` active (Topology Dojo #247
-      merged and production flipped) — verified by T005; bridge form until then
-- [ ] research R7: `upsert_by_source` inside workspace proposals — verified by T006
+- [ ] research R2/R7: the target deployment runs Topology Dojo with #247 (API keys) and #248
+      (`element.upsert`, sourced listings) merged and `API_KEYS_ENABLED` active — verified by T005;
+      hosted mode is unavailable until then, by design (no bridge fallback)
 - [ ] Topology Dojo license — requested in the PR (research R9); not a blocker for the hosted
       mode or for the converter, a blocker for calling local mode a first-class install
 
