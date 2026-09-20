@@ -1,0 +1,3306 @@
+{
+  "snapshot_id": "ip_fabric-20260920T120000000000",
+  "source_kind": "ip_fabric",
+  "source_label": "enterprise",
+  "created_at": "2026-09-20T12:00:00+00:00",
+  "devices": [
+    {
+      "hostname": "fw1",
+      "role": "firewall",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "fw1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "eth1",
+          "parent_hostname": "fw1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "FTD"
+      }
+    },
+    {
+      "hostname": "fw2",
+      "role": "firewall",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "fw2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "eth1",
+          "parent_hostname": "fw2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "FTD"
+      }
+    },
+    {
+      "hostname": "r1",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi1",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi2",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi3",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi4",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi5",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi6",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi7",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi8",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi9",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi10",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi11",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi12",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi13",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi14",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi15",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi16",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi17",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi18",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi19",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C8000V"
+      }
+    },
+    {
+      "hostname": "r2",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi1",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi2",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi3",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi4",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi5",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi6",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi7",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi8",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi9",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi10",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi11",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi12",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi13",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi14",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi15",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi16",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi17",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi18",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi19",
+          "parent_hostname": "r2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C8000V"
+      }
+    },
+    {
+      "hostname": "r3",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi1",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi2",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi3",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi4",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi5",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi6",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi7",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi8",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi9",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi10",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi11",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi12",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi13",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi14",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi15",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi16",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi17",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi18",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi19",
+          "parent_hostname": "r3",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C8000V"
+      }
+    },
+    {
+      "hostname": "r4",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi1",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi2",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi3",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi4",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi5",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi6",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi7",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi8",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi9",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi10",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi11",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi12",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi13",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi14",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi15",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi16",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi17",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi18",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi19",
+          "parent_hostname": "r4",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C8000V"
+      }
+    },
+    {
+      "hostname": "sw01",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw01",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw01",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw01",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw01",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw01",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw01",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw01",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw02",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw02",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw02",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw02",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw02",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw02",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw02",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw02",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw03",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw03",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw03",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw03",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw03",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw03",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw03",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw03",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw04",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw04",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw04",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw04",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw04",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw04",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw04",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw04",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw05",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw05",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw05",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw05",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw05",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw05",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw05",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw05",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw06",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw06",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw06",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw06",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw06",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw06",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw06",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw06",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw07",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw07",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw07",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw07",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw07",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw07",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw07",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw07",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw08",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw08",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw08",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw08",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw08",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw08",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw08",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw08",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw09",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw09",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw09",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw09",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw09",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw09",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw09",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw09",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw10",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw10",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw10",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw10",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw10",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw10",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw10",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw10",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw11",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw11",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw11",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw11",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw11",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw11",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw11",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw11",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw12",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw12",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw12",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw12",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw12",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw12",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw12",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw12",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw13",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw13",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw13",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw13",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw13",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw13",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw13",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw13",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "sw14",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw14",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw14",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/3",
+          "parent_hostname": "sw14",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/4",
+          "parent_hostname": "sw14",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/5",
+          "parent_hostname": "sw14",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/6",
+          "parent_hostname": "sw14",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/7",
+          "parent_hostname": "sw14",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300"
+      }
+    },
+    {
+      "hostname": "host01",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host01",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host02",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host02",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host03",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host03",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host04",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host04",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host05",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host05",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host06",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host06",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host07",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host07",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host08",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host08",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host09",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host09",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host10",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host10",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host11",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host11",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host12",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host12",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host13",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host13",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host14",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host14",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host15",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host15",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host16",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host16",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host17",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host17",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host18",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host18",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host19",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host19",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host20",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host20",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host21",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host21",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host22",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host22",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host23",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host23",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host24",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host24",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host25",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host25",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host26",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host26",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host27",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host27",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host28",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host28",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host29",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host29",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host30",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host30",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host31",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host31",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host32",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host32",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host33",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host33",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host34",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host34",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host35",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host35",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host36",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host36",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host37",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host37",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host38",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host38",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host39",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host39",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    },
+    {
+      "hostname": "host40",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host40",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    }
+  ],
+  "links": [
+    {
+      "link_id": "link-0",
+      "endpoint_a": {
+        "hostname": "host01",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw01",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host01:eth0 <-> sw01:Gi0/1"
+    },
+    {
+      "link_id": "link-1",
+      "endpoint_a": {
+        "hostname": "host02",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw02",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host02:eth0 <-> sw02:Gi0/1"
+    },
+    {
+      "link_id": "link-2",
+      "endpoint_a": {
+        "hostname": "host03",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw03",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host03:eth0 <-> sw03:Gi0/1"
+    },
+    {
+      "link_id": "link-3",
+      "endpoint_a": {
+        "hostname": "host04",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw04",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host04:eth0 <-> sw04:Gi0/1"
+    },
+    {
+      "link_id": "link-4",
+      "endpoint_a": {
+        "hostname": "host05",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw05",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host05:eth0 <-> sw05:Gi0/1"
+    },
+    {
+      "link_id": "link-5",
+      "endpoint_a": {
+        "hostname": "host06",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw06",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host06:eth0 <-> sw06:Gi0/1"
+    },
+    {
+      "link_id": "link-6",
+      "endpoint_a": {
+        "hostname": "host07",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw07",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host07:eth0 <-> sw07:Gi0/1"
+    },
+    {
+      "link_id": "link-7",
+      "endpoint_a": {
+        "hostname": "host08",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw08",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host08:eth0 <-> sw08:Gi0/1"
+    },
+    {
+      "link_id": "link-8",
+      "endpoint_a": {
+        "hostname": "host09",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw09",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host09:eth0 <-> sw09:Gi0/1"
+    },
+    {
+      "link_id": "link-9",
+      "endpoint_a": {
+        "hostname": "host10",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw10",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host10:eth0 <-> sw10:Gi0/1"
+    },
+    {
+      "link_id": "link-10",
+      "endpoint_a": {
+        "hostname": "host11",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw11",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host11:eth0 <-> sw11:Gi0/1"
+    },
+    {
+      "link_id": "link-11",
+      "endpoint_a": {
+        "hostname": "host12",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw12",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host12:eth0 <-> sw12:Gi0/1"
+    },
+    {
+      "link_id": "link-12",
+      "endpoint_a": {
+        "hostname": "host13",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw13",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host13:eth0 <-> sw13:Gi0/1"
+    },
+    {
+      "link_id": "link-13",
+      "endpoint_a": {
+        "hostname": "host14",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw14",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "host14:eth0 <-> sw14:Gi0/1"
+    },
+    {
+      "link_id": "link-14",
+      "endpoint_a": {
+        "hostname": "host15",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw01",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host15:eth0 <-> sw01:Gi0/2"
+    },
+    {
+      "link_id": "link-15",
+      "endpoint_a": {
+        "hostname": "host16",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw02",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host16:eth0 <-> sw02:Gi0/2"
+    },
+    {
+      "link_id": "link-16",
+      "endpoint_a": {
+        "hostname": "host17",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw03",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host17:eth0 <-> sw03:Gi0/2"
+    },
+    {
+      "link_id": "link-17",
+      "endpoint_a": {
+        "hostname": "host18",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw04",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host18:eth0 <-> sw04:Gi0/2"
+    },
+    {
+      "link_id": "link-18",
+      "endpoint_a": {
+        "hostname": "host19",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw05",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host19:eth0 <-> sw05:Gi0/2"
+    },
+    {
+      "link_id": "link-19",
+      "endpoint_a": {
+        "hostname": "host20",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw06",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host20:eth0 <-> sw06:Gi0/2"
+    },
+    {
+      "link_id": "link-20",
+      "endpoint_a": {
+        "hostname": "host21",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw07",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host21:eth0 <-> sw07:Gi0/2"
+    },
+    {
+      "link_id": "link-21",
+      "endpoint_a": {
+        "hostname": "host22",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw08",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host22:eth0 <-> sw08:Gi0/2"
+    },
+    {
+      "link_id": "link-22",
+      "endpoint_a": {
+        "hostname": "host23",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw09",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host23:eth0 <-> sw09:Gi0/2"
+    },
+    {
+      "link_id": "link-23",
+      "endpoint_a": {
+        "hostname": "host24",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw10",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host24:eth0 <-> sw10:Gi0/2"
+    },
+    {
+      "link_id": "link-24",
+      "endpoint_a": {
+        "hostname": "host25",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw11",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host25:eth0 <-> sw11:Gi0/2"
+    },
+    {
+      "link_id": "link-25",
+      "endpoint_a": {
+        "hostname": "host26",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw12",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host26:eth0 <-> sw12:Gi0/2"
+    },
+    {
+      "link_id": "link-26",
+      "endpoint_a": {
+        "hostname": "host27",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw13",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host27:eth0 <-> sw13:Gi0/2"
+    },
+    {
+      "link_id": "link-27",
+      "endpoint_a": {
+        "hostname": "host28",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw14",
+        "interface_name": "Gi0/2"
+      },
+      "state": null,
+      "label": "host28:eth0 <-> sw14:Gi0/2"
+    },
+    {
+      "link_id": "link-28",
+      "endpoint_a": {
+        "hostname": "host29",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw01",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host29:eth0 <-> sw01:Gi0/3"
+    },
+    {
+      "link_id": "link-29",
+      "endpoint_a": {
+        "hostname": "host30",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw02",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host30:eth0 <-> sw02:Gi0/3"
+    },
+    {
+      "link_id": "link-30",
+      "endpoint_a": {
+        "hostname": "host31",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw03",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host31:eth0 <-> sw03:Gi0/3"
+    },
+    {
+      "link_id": "link-31",
+      "endpoint_a": {
+        "hostname": "host32",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw04",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host32:eth0 <-> sw04:Gi0/3"
+    },
+    {
+      "link_id": "link-32",
+      "endpoint_a": {
+        "hostname": "host33",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw05",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host33:eth0 <-> sw05:Gi0/3"
+    },
+    {
+      "link_id": "link-33",
+      "endpoint_a": {
+        "hostname": "host34",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw06",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host34:eth0 <-> sw06:Gi0/3"
+    },
+    {
+      "link_id": "link-34",
+      "endpoint_a": {
+        "hostname": "host35",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw07",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host35:eth0 <-> sw07:Gi0/3"
+    },
+    {
+      "link_id": "link-35",
+      "endpoint_a": {
+        "hostname": "host36",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw08",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host36:eth0 <-> sw08:Gi0/3"
+    },
+    {
+      "link_id": "link-36",
+      "endpoint_a": {
+        "hostname": "host37",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw09",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host37:eth0 <-> sw09:Gi0/3"
+    },
+    {
+      "link_id": "link-37",
+      "endpoint_a": {
+        "hostname": "host38",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw10",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host38:eth0 <-> sw10:Gi0/3"
+    },
+    {
+      "link_id": "link-38",
+      "endpoint_a": {
+        "hostname": "host39",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw11",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host39:eth0 <-> sw11:Gi0/3"
+    },
+    {
+      "link_id": "link-39",
+      "endpoint_a": {
+        "hostname": "host40",
+        "interface_name": "eth0"
+      },
+      "endpoint_b": {
+        "hostname": "sw12",
+        "interface_name": "Gi0/3"
+      },
+      "state": null,
+      "label": "host40:eth0 <-> sw12:Gi0/3"
+    },
+    {
+      "link_id": "link-40",
+      "endpoint_a": {
+        "hostname": "sw01",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "Gi1"
+      },
+      "state": null,
+      "label": "sw01:Gi0/6 <-> r1:Gi1"
+    },
+    {
+      "link_id": "link-41",
+      "endpoint_a": {
+        "hostname": "sw01",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi1"
+      },
+      "state": null,
+      "label": "sw01:Gi0/7 <-> r2:Gi1"
+    },
+    {
+      "link_id": "link-42",
+      "endpoint_a": {
+        "hostname": "sw02",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi2"
+      },
+      "state": null,
+      "label": "sw02:Gi0/6 <-> r2:Gi2"
+    },
+    {
+      "link_id": "link-43",
+      "endpoint_a": {
+        "hostname": "sw02",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi2"
+      },
+      "state": null,
+      "label": "sw02:Gi0/7 <-> r3:Gi2"
+    },
+    {
+      "link_id": "link-44",
+      "endpoint_a": {
+        "hostname": "sw03",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi3"
+      },
+      "state": null,
+      "label": "sw03:Gi0/6 <-> r3:Gi3"
+    },
+    {
+      "link_id": "link-45",
+      "endpoint_a": {
+        "hostname": "sw03",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r4",
+        "interface_name": "Gi3"
+      },
+      "state": null,
+      "label": "sw03:Gi0/7 <-> r4:Gi3"
+    },
+    {
+      "link_id": "link-46",
+      "endpoint_a": {
+        "hostname": "sw04",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r4",
+        "interface_name": "Gi4"
+      },
+      "state": null,
+      "label": "sw04:Gi0/6 <-> r4:Gi4"
+    },
+    {
+      "link_id": "link-47",
+      "endpoint_a": {
+        "hostname": "sw04",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "Gi4"
+      },
+      "state": null,
+      "label": "sw04:Gi0/7 <-> r1:Gi4"
+    },
+    {
+      "link_id": "link-48",
+      "endpoint_a": {
+        "hostname": "sw05",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "Gi5"
+      },
+      "state": null,
+      "label": "sw05:Gi0/6 <-> r1:Gi5"
+    },
+    {
+      "link_id": "link-49",
+      "endpoint_a": {
+        "hostname": "sw05",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi5"
+      },
+      "state": null,
+      "label": "sw05:Gi0/7 <-> r2:Gi5"
+    },
+    {
+      "link_id": "link-50",
+      "endpoint_a": {
+        "hostname": "sw06",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi6"
+      },
+      "state": null,
+      "label": "sw06:Gi0/6 <-> r2:Gi6"
+    },
+    {
+      "link_id": "link-51",
+      "endpoint_a": {
+        "hostname": "sw06",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi6"
+      },
+      "state": null,
+      "label": "sw06:Gi0/7 <-> r3:Gi6"
+    },
+    {
+      "link_id": "link-52",
+      "endpoint_a": {
+        "hostname": "sw07",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi7"
+      },
+      "state": null,
+      "label": "sw07:Gi0/6 <-> r3:Gi7"
+    },
+    {
+      "link_id": "link-53",
+      "endpoint_a": {
+        "hostname": "sw07",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r4",
+        "interface_name": "Gi7"
+      },
+      "state": null,
+      "label": "sw07:Gi0/7 <-> r4:Gi7"
+    },
+    {
+      "link_id": "link-54",
+      "endpoint_a": {
+        "hostname": "sw08",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r4",
+        "interface_name": "Gi8"
+      },
+      "state": null,
+      "label": "sw08:Gi0/6 <-> r4:Gi8"
+    },
+    {
+      "link_id": "link-55",
+      "endpoint_a": {
+        "hostname": "sw08",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "Gi8"
+      },
+      "state": null,
+      "label": "sw08:Gi0/7 <-> r1:Gi8"
+    },
+    {
+      "link_id": "link-56",
+      "endpoint_a": {
+        "hostname": "sw09",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "Gi9"
+      },
+      "state": null,
+      "label": "sw09:Gi0/6 <-> r1:Gi9"
+    },
+    {
+      "link_id": "link-57",
+      "endpoint_a": {
+        "hostname": "sw09",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi9"
+      },
+      "state": null,
+      "label": "sw09:Gi0/7 <-> r2:Gi9"
+    },
+    {
+      "link_id": "link-58",
+      "endpoint_a": {
+        "hostname": "sw10",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi10"
+      },
+      "state": null,
+      "label": "sw10:Gi0/6 <-> r2:Gi10"
+    },
+    {
+      "link_id": "link-59",
+      "endpoint_a": {
+        "hostname": "sw10",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi10"
+      },
+      "state": null,
+      "label": "sw10:Gi0/7 <-> r3:Gi10"
+    },
+    {
+      "link_id": "link-60",
+      "endpoint_a": {
+        "hostname": "sw11",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi11"
+      },
+      "state": null,
+      "label": "sw11:Gi0/6 <-> r3:Gi11"
+    },
+    {
+      "link_id": "link-61",
+      "endpoint_a": {
+        "hostname": "sw11",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r4",
+        "interface_name": "Gi11"
+      },
+      "state": null,
+      "label": "sw11:Gi0/7 <-> r4:Gi11"
+    },
+    {
+      "link_id": "link-62",
+      "endpoint_a": {
+        "hostname": "sw12",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r4",
+        "interface_name": "Gi12"
+      },
+      "state": null,
+      "label": "sw12:Gi0/6 <-> r4:Gi12"
+    },
+    {
+      "link_id": "link-63",
+      "endpoint_a": {
+        "hostname": "sw12",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "Gi12"
+      },
+      "state": null,
+      "label": "sw12:Gi0/7 <-> r1:Gi12"
+    },
+    {
+      "link_id": "link-64",
+      "endpoint_a": {
+        "hostname": "sw13",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "Gi13"
+      },
+      "state": null,
+      "label": "sw13:Gi0/6 <-> r1:Gi13"
+    },
+    {
+      "link_id": "link-65",
+      "endpoint_a": {
+        "hostname": "sw13",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi13"
+      },
+      "state": null,
+      "label": "sw13:Gi0/7 <-> r2:Gi13"
+    },
+    {
+      "link_id": "link-66",
+      "endpoint_a": {
+        "hostname": "sw14",
+        "interface_name": "Gi0/6"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi14"
+      },
+      "state": null,
+      "label": "sw14:Gi0/6 <-> r2:Gi14"
+    },
+    {
+      "link_id": "link-67",
+      "endpoint_a": {
+        "hostname": "sw14",
+        "interface_name": "Gi0/7"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi14"
+      },
+      "state": null,
+      "label": "sw14:Gi0/7 <-> r3:Gi14"
+    },
+    {
+      "link_id": "link-68",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "Gi15"
+      },
+      "endpoint_b": {
+        "hostname": "fw1",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r1:Gi15 <-> fw1:eth0"
+    },
+    {
+      "link_id": "link-69",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "Gi15"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r1:Gi15 <-> fw2:eth0"
+    },
+    {
+      "link_id": "link-70",
+      "endpoint_a": {
+        "hostname": "r2",
+        "interface_name": "Gi15"
+      },
+      "endpoint_b": {
+        "hostname": "fw1",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r2:Gi15 <-> fw1:eth0"
+    },
+    {
+      "link_id": "link-71",
+      "endpoint_a": {
+        "hostname": "r2",
+        "interface_name": "Gi15"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r2:Gi15 <-> fw2:eth0"
+    },
+    {
+      "link_id": "link-72",
+      "endpoint_a": {
+        "hostname": "r3",
+        "interface_name": "Gi15"
+      },
+      "endpoint_b": {
+        "hostname": "fw1",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r3:Gi15 <-> fw1:eth0"
+    },
+    {
+      "link_id": "link-73",
+      "endpoint_a": {
+        "hostname": "r3",
+        "interface_name": "Gi15"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r3:Gi15 <-> fw2:eth0"
+    },
+    {
+      "link_id": "link-74",
+      "endpoint_a": {
+        "hostname": "r4",
+        "interface_name": "Gi15"
+      },
+      "endpoint_b": {
+        "hostname": "fw1",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r4:Gi15 <-> fw1:eth0"
+    },
+    {
+      "link_id": "link-75",
+      "endpoint_a": {
+        "hostname": "r4",
+        "interface_name": "Gi15"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r4:Gi15 <-> fw2:eth0"
+    },
+    {
+      "link_id": "link-76",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "Gi16"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi17"
+      },
+      "state": null,
+      "label": "r1:Gi16 <-> r2:Gi17"
+    },
+    {
+      "link_id": "link-77",
+      "endpoint_a": {
+        "hostname": "r2",
+        "interface_name": "Gi16"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi17"
+      },
+      "state": null,
+      "label": "r2:Gi16 <-> r3:Gi17"
+    },
+    {
+      "link_id": "link-78",
+      "endpoint_a": {
+        "hostname": "r3",
+        "interface_name": "Gi16"
+      },
+      "endpoint_b": {
+        "hostname": "r4",
+        "interface_name": "Gi17"
+      },
+      "state": null,
+      "label": "r3:Gi16 <-> r4:Gi17"
+    },
+    {
+      "link_id": "link-79",
+      "endpoint_a": {
+        "hostname": "r4",
+        "interface_name": "Gi16"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "Gi17"
+      },
+      "state": null,
+      "label": "r4:Gi16 <-> r1:Gi17"
+    },
+    {
+      "link_id": "link-80",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "Gi16"
+      },
+      "endpoint_b": {
+        "hostname": "r3",
+        "interface_name": "Gi17"
+      },
+      "state": null,
+      "label": "r1:Gi16 <-> r3:Gi17"
+    },
+    {
+      "link_id": "link-81",
+      "endpoint_a": {
+        "hostname": "r2",
+        "interface_name": "Gi16"
+      },
+      "endpoint_b": {
+        "hostname": "r4",
+        "interface_name": "Gi17"
+      },
+      "state": null,
+      "label": "r2:Gi16 <-> r4:Gi17"
+    },
+    {
+      "link_id": "link-82",
+      "endpoint_a": {
+        "hostname": "fw1",
+        "interface_name": "eth1"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth1"
+      },
+      "state": null,
+      "label": "fw1:eth1 <-> fw2:eth1"
+    },
+    {
+      "link_id": "link-83",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "Gi18"
+      },
+      "endpoint_b": {
+        "hostname": "fw1",
+        "interface_name": "eth1"
+      },
+      "state": null,
+      "label": "r1:Gi18 <-> fw1:eth1"
+    },
+    {
+      "link_id": "link-84",
+      "endpoint_a": {
+        "hostname": "r2",
+        "interface_name": "Gi18"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth1"
+      },
+      "state": null,
+      "label": "r2:Gi18 <-> fw2:eth1"
+    },
+    {
+      "link_id": "link-85",
+      "endpoint_a": {
+        "hostname": "r3",
+        "interface_name": "Gi18"
+      },
+      "endpoint_b": {
+        "hostname": "fw1",
+        "interface_name": "eth1"
+      },
+      "state": null,
+      "label": "r3:Gi18 <-> fw1:eth1"
+    },
+    {
+      "link_id": "link-86",
+      "endpoint_a": {
+        "hostname": "r4",
+        "interface_name": "Gi18"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth1"
+      },
+      "state": null,
+      "label": "r4:Gi18 <-> fw2:eth1"
+    },
+    {
+      "link_id": "link-87",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "Gi19"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth1"
+      },
+      "state": null,
+      "label": "r1:Gi19 <-> fw2:eth1"
+    },
+    {
+      "link_id": "link-88",
+      "endpoint_a": {
+        "hostname": "r2",
+        "interface_name": "Gi19"
+      },
+      "endpoint_b": {
+        "hostname": "fw1",
+        "interface_name": "eth1"
+      },
+      "state": null,
+      "label": "r2:Gi19 <-> fw1:eth1"
+    },
+    {
+      "link_id": "link-89",
+      "endpoint_a": {
+        "hostname": "r3",
+        "interface_name": "Gi19"
+      },
+      "endpoint_b": {
+        "hostname": "fw2",
+        "interface_name": "eth1"
+      },
+      "state": null,
+      "label": "r3:Gi19 <-> fw2:eth1"
+    }
+  ]
+}

@@ -393,6 +393,7 @@ This helps determine whether discrepancies are due to recent device changes (dev
 | **servicenow-change-workflow** | CRITICAL and HIGH discrepancies auto-open ServiceNow incidents |
 | **markmap-viz** | Drift summary mind map for visual human review |
 | **drawio-diagram** | Color-code topology links by reconciliation status (green=match, red=mismatch, yellow=undocumented) |
+| **topology-dojo-diagram** | Same colour-coding as a re-syncable Topology Dojo document with a legend — pass the reconciliation rows as its `--overlay` keyed by `link_id` |
 | **GAIT** | Full reconciliation session recorded in audit trail |
 
 ## When to Use

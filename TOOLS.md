@@ -407,6 +407,48 @@ instances predating the v2.69.1/v2.69.2 auth fix (12 `/bgp-graph*` endpoints ran
 scheme, so a valid bearer token was never even checked). If every call comes back empty, confirm the
 Topolograph version before concluding there is no BGP monitoring configured.
 
+## Topology Dojo Topology Documents (`topology-dojo-mcp`, remote or local)
+
+Validated, re-syncable, shareable topology **documents** (spec 124) driven by the
+`topology-dojo-diagram` skill. Two connection modes, selected by `TOPOLOGY_DOJO_MODE`:
+
+| Mode | Reached by | Sharing / workspaces | Network at run time |
+|---|---|---|---|
+| `hosted` (default) | `url` (`TOPOLOGY_DOJO_MCP_URL`) + `Authorization: Bearer ${TOPOLOGY_DOJO_API_KEY}` — a user-minted, GitHub-identity-tied key from `<deployment>/keys`; scopes `author` (implicit), `share`, `workspace` | yes, confirmation-gated | yes |
+| `local` | operator-supplied clone at `TOPOLOGY_DOJO_DIR` (`npm run --silent mcp` over stdio, written by the installer) | none | none |
+
+A tool missing from `tools/list` means the key lacks that scope, not an outage.
+
+| Tool | Purpose |
+|---|---|
+| `describe_capabilities` / `layout_guidelines` / `get_authoring_guidance` | Discover once per session: built-in types, grid constants, ≤5 hosted authoring directives |
+| `import_topology` | First sync of the converted document (`format: "topology-dojo"`) |
+| `list_topologies` / `get_topology` | Locate by stable identity title; `sources: true` gives the sourced-element listing the Sync Diff reads; the full read-back is what gets persisted |
+| `edit_topology` | Re-sync: batches of ≤200 `upsert_by_source` ops, atomic per call, `created` per result |
+| `remove_element` | Only after confirmation, for elements absent at source |
+| `validate_topology` / `balance_topology` / `tidy_topology` / `layout_topology` | Validate after every load; balance when `layoutClean` is false; re-layout only on request |
+| `inspect_render` / `render_svg` / `export_flipbook` | Render **once per page per sync** (2 MiB / 6 MiB caps) |
+| `set_legend` / `set_document_title` | Legend when reconciliation colours are present; rename |
+| `share_topology` / `list_shares` / `unpublish_topology` | Hosted only: public link for 30 days after the internal-address scan and two-layer confirmation; GAIT-recorded |
+| `list_workspaces` / `get_workspace_manifest` / `describe_workspace_operations` / `get_workspace_changes` / `get_workspace_elements` / `propose_workspace_changes` / `apply_workspace_changes` / `create_checkpoint` / `list_checkpoints` | Hosted only: proposals of `element.upsert` ops (≤250 / 512 KiB) are the default; direct apply only with a stated live lease; `operationSchemaRevision` must be ≥ 2 |
+
+Rate limits (hosted): 120 writes/min, 8 shares/5 min — the stated "retry after" is reported, never
+looped on. Every element written carries `source = {system, kind, id, fetchedAt}`; every credential-
+shaped key is stripped by the adapter before anything leaves NetClaw.
+
+**Classification note (research R13):** `docs/ADDING-AN-MCP.md` defaults a remote integration to
+OAuth. This entry is a declared exception: Topology Dojo issues user-tied, scoped API keys
+(proposal 0005) and the registration is `url` + bearer by variable reference, the Globalping shape.
+There is no OAuth bridge and no other hosted credential path.
+
+### Boundaries
+
+`drawio-diagram` for `.drawio` / Confluence / Visio deliverables; `threejs-network-viz`,
+`ue5-network-viz`, `blender-3d-viz`, `worldlabs-topology-viz` for exploration and presentation;
+`comfyui-topology-viz` for a stylized still; `markmap-viz` for hierarchy; `uml-diagram` for
+protocol, sequence, rack and packet diagrams. `document-generation` / `network-report-documents`
+embed the `.svg` artifact and never redraw it.
+
 ## Cisco PSIRT Advisories (`cisco-psirt-mcp`)
 
 Answers whether a running Cisco version is affected by a published advisory. Read-only,
@@ -613,7 +655,7 @@ No API keys. Nothing to rotate.
 
 ### Boundaries
 
-`drawio-diagram` / `markmap-viz` / `uml-diagram` / `threejs-network-viz` produce **diagrams** — this
+`drawio-diagram` / `markmap-viz` / `uml-diagram` / `threejs-network-viz` / `topology-dojo-diagram` produce **diagrams** — this
 **embeds** them and never redraws. `rag-mcp` (feature 062) **reads** these formats for ingestion; this
 **writes** them, sharing the same four libraries with identical bounds.
 `servicenow-change-workflow` owns the CR lifecycle; this renders a document from one.

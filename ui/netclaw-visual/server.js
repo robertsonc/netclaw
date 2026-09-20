@@ -113,6 +113,7 @@ const INTEGRATION_CATALOG = [
   { id: 'threejs-viz', name: 'Three.js Network Viz', category: 'Visualization', prefixes: ['threejs-network-viz'], color: '#049ef4', transport: 'stdio', toolEstimate: 3, description: 'Browser-based 3D network topology visualization — single self-contained HTML file, no desktop app/GPU/server required. Optional real-3D-model stencil mode via the vendored sketchfab-mcp-server (3 tools: search, model-details/license-verification, download), filtered to CC0-licensed models only.' },
   { id: 'comfyui-viz', name: 'ComfyUI Topology Viz', category: 'Visualization', prefixes: ['comfyui-topology-viz', 'topology-diagram-mcp', 'image-style-mcp'], color: '#8a3ffc', transport: 'stdio', toolEstimate: 8, description: 'AI-generated stylized still images of a network topology. Spec 121 federated path (preferred, live topology sources): a deterministic diagram (topology-diagram-mcp, real role icons/labels/connections, no diffusion) restyled by an image-edit diffusion pass (image-style-mcp), both run on the johns-risk/viz federation member via n2n/tools/call. Falls back to the original comfyui-mcp Flux+ControlNet path (6 of its 41 tools used) for freeform requests or when that member is unreachable. Stills only in v1.' },
   { id: 'worldlabs-viz', name: 'World Labs Fantastical Viz', category: 'Visualization', prefixes: ['worldlabs-topology-viz', 'worldlabs-marble-mcp'], color: '#ff6b9d', transport: 'stdio', toolEstimate: 3, description: 'AI-augmented, explorable 3D "world" visualization of a real network topology via World Labs Marble (spec 122). Free, instant, no-cost themed prompt preview; a real credit-spending generation only runs after explicit two-layer confirmation (conversational and a required user_confirmed argument the tool itself validates). Explicitly decorative — reuses topology-diagram-mcp\'s accurate diagram as the authoritative artifact, standalone on Border, no federation member required.' },
+  { id: 'topology-dojo', name: 'Topology Dojo', category: 'Visualization', prefixes: ['topology-dojo-'], color: '#4cc9f0', transport: 'http', toolEstimate: 34, description: 'Validated, re-syncable, shareable topology documents: discovery → source-keyed upsert → validate/tidy → SVG + JSON, with confirmation-gated public links and proposal-only workspace edits (spec 124).' },
   { id: 'chrome-devtools', name: 'Chrome DevTools', category: 'Browser Automation', prefixes: ['chrome-devtools-', 'browser-viz-verify', 'browser-gui-inspect'], color: '#4285f4', transport: 'npx', toolEstimate: 20, description: 'Controlled browser automation/inspection — visualization render QA, controller GUI gap-filling, undocumented vendor API discovery via network-request capture, general web-GUI automation. No credentials; auth via one-time manual sign-in into a persistent Chrome profile.' },
   { id: 'computer-use', name: 'Computer Use', category: 'Desktop Automation', prefixes: ['desktop-gui-inspect'], color: '#f9ab00', transport: 'script', toolEstimate: 17, description: 'Full-desktop automation for legacy tools with no browser or API path — virtual Xvfb+XFCE desktop, 17 xdotool-driven actions, VNC/noVNC Watch Mode (loopback-only). No credentials; installed via OpenClaw\'s ClawHub skill mechanism, not a vendored MCP server.' },
 ];
@@ -543,6 +544,11 @@ const ENV_MAP = {
     env: ['WLT_API_KEY'],
     files: ['mcp-servers/worldlabs-marble-mcp/', 'workspace/skills/worldlabs-topology-viz/'],
     notes: 'Only needed for the generate step (spends real World Labs credits, ~5 minutes per world) — the free preview mode needs no credential at all. Requires a funded World Labs account (platform.worldlabs.ai/billing). generate_world itself refuses to run without an explicit user_confirmed=true argument, in addition to the conversational confirmation the skill also requires.',
+  },
+  'topology-dojo': {
+    env: ['TOPOLOGY_DOJO_API_KEY', 'TOPOLOGY_DOJO_MCP_URL', 'TOPOLOGY_DOJO_MODE', 'TOPOLOGY_DOJO_DIR'],
+    files: ['workspace/skills/topology-dojo-diagram/'],
+    notes: 'Hosted mode needs a user-minted Topology Dojo API key (mint at <deployment>/keys; scopes: share for public links, workspace for proposals). Local mode runs the operator\'s own clone over stdio with no account, no sharing and no workspaces. Public share links are confirmation-gated and GAIT-logged; workspace writes are proposals unless the owner grants a lease.',
   },
 };
 
@@ -1809,7 +1815,7 @@ function resolveActivations(message, graph) {
     'routing': ['pyats', 'protocol'],
     'ospf': ['pyats', 'protocol'],
     'bgp': ['pyats', 'protocol'],
-    'topology': ['pyats'],
+    'topology': ['pyats', 'topology-dojo'],
     'security': ['ise', 'nmap', 'nvd', 'fmc'],
     'audit': ['pyats', 'nvd', 'gait'],
     'firewall': ['asa', 'fmc', 'paloalto', 'fortinet', 'checkpoint'],
@@ -1822,7 +1828,7 @@ function resolveActivations(message, graph) {
     'smartconsole': ['checkpoint'],
     'vpn': ['asa', 'sdwan', 'meraki'],
     'change': ['servicenow', 'gait'],
-    'diagram': ['drawio', 'uml', 'markmap'],
+    'diagram': ['drawio', 'uml', 'markmap', 'topology-dojo'],
     'cloud': ['aws', 'gcp'],
     'aws': ['aws'],
     'gcp': ['gcp'],

@@ -1142,6 +1142,15 @@
         "TOPOLOGRAPH_API_TOKEN": "${TOPOLOGRAPH_API_TOKEN}"
       }
     },
+    "topology-dojo-mcp": {
+      "url": "${TOPOLOGY_DOJO_MCP_URL:-https://topology-dojo.harnessed.cloud/mcp}",
+      "headers": {
+        "Authorization": "Bearer ${TOPOLOGY_DOJO_API_KEY}"
+      },
+      "env": {
+        "TOPOLOGY_DOJO_API_KEY": "${TOPOLOGY_DOJO_API_KEY}"
+      }
+    },
     "fortinet-mcp": {
       "command": "python3",
       "args": [

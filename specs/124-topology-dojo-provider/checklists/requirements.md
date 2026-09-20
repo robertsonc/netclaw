@@ -68,10 +68,29 @@ All eleven findings verified against primary sources and addressed in the artifa
 - [ ] Topology Dojo license — requested in the PR (research R9); not a blocker for the hosted
       mode or for the converter, a blocker for calling local mode a first-class install
 
-## Gate results (filled in by T043)
+## Gate results (T043, 2026-09-20, implementation session)
 
-- [ ] `scripts/verify-spec-artifacts.py`
-- [ ] `scripts/reconcile-mcp.py` exit 0
-- [ ] `scripts/run-contract-tests.py --suite topology-dojo --prepare`
-- [ ] `tests/runner/test_run_contract_tests.py`
-- [ ] `scripts/check-server-startup.py --only topology-dojo-mcp`
+- [x] `scripts/verify-spec-artifacts.py` — PASS (111 specs checked)
+- [x] `scripts/reconcile-mcp.py` — `docs` surface now PASS (claims 173, computed 173: the
+      pre-existing 172-vs-173 drift is closed by this registration, not by editing the claim);
+      `catalog`, `dependencies`, `meraki-ids`, `packages`, `portability` PASS. Overall exit is 1
+      **only** because the `startup` surface reports servers whose Python modules are absent in
+      this container (`mcp`, `fastmcp`, `httpx`, `networkx` …) — identical on the pre-change tree;
+      `topology-dojo-mcp` itself is not among them
+- [x] `scripts/run-contract-tests.py --suite topology-dojo --prepare` — PASS (offline, 0.8 s);
+      live block reports `NEEDS_LIVE_CREDENTIALS: TOPOLOGY_DOJO_DIR` as designed
+- [x] `tests/topology-dojo/run-tests.sh` — 50 checks, 0 failures (35 unit tests + registration +
+      SKILL.md language + routing boundary)
+- [x] `tests/runner/test_run_contract_tests.py` — 17 passed
+- [x] `scripts/check-server-startup.py --only topology-dojo-mcp` — PASS (remote entry, skipped by
+      design; recorded exception)
+- [x] `scripts/verify-catalog-coverage.py` — PASS (108 catalog entries, 110 registered)
+- [x] `scripts/verify-inventory-counts.py` — PASS (228 skills, 173 MCP integrations)
+- [x] `scripts/trace-skill.py topology-dojo-diagram` — `topology-dojo-mcp` registered and
+      installable (installer component `topology-dojo`)
+- [x] `scripts/check-package-references.py --refresh` — no new package reference (the skill
+      invokes nothing via `npx`/`uvx`); the refreshed timestamp was not committed
+- [ ] T005 (hosted verification against the target deployment) — **not run here**: needs a
+      user-minted key and `API_KEYS_ENABLED` on production, which is the operator's action after
+      Topology Dojo #247/#248 are deployed. The offline suite and local mode are what this branch
+      proves; hosted mode is unavailable until then, by design

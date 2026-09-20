@@ -4,7 +4,7 @@
 
 # NetClaw
 
-A CCIE-level AI network engineering coworker. Built on [OpenClaw](https://github.com/openclaw/openclaw) with Anthropic Claude, 227 skills, and 173 MCP integrations for complete network automation with ITSM gating, source-of-truth reconciliation, immutable audit trails, gNMI streaming telemetry, NetFlow/IPFIX flow telemetry, Canvas/A2UI inline network visualizations, packet capture analysis, GitHub config-as-code, GitLab DevOps (issues, merge requests, pipelines, repositories, wikis), Jenkins CI/CD (job monitoring, build triggering, log analysis, SCM tracking), Chrome DevTools browser automation (visualization render QA, controller GUI gap-filling, undocumented API discovery, headless or watchable-headed), Computer Use full-desktop automation (legacy desktop-only tools with no browser or API path, virtual XFCE desktop with VNC/noVNC Watch Mode), Cisco CML lab simulation, ContainerLab containerized network labs, Cisco NSO orchestration, Cisco SD-WAN vManage monitoring, Grafana observability (dashboards, Prometheus, Loki, alerting, incidents), Prometheus direct PromQL monitoring, Kubeshark Kubernetes traffic analysis, Cisco Meraki Dashboard management, Cisco ThousandEyes network intelligence, AWS and Azure cloud networking, Cisco Secure Firewall policy auditing, Check Point Security (15 MCPs: policy, threat intel, gateway, SASE, malware), Itential network orchestration, Juniper JunOS device automation, Arista CloudVision Portal monitoring, F5 BIG-IP pyATS iControl REST coverage, Infoblox DDI, Palo Alto Panorama, FortiManager, Batfish offline configuration analysis, UML diagram generation, EVPN/VXLAN fabric workflows, live BGP/OSPF control-plane participation, OSPF/IS-IS link-state and BGP topology analysis over stored Topolograph snapshots, nmap network scanning, gtrace path analysis and IP enrichment, Slack-native operations, Cisco WebEx-native operations, Microsoft 365 integration, Twilio voice/SMS, Twitter/X integration, Claroty OT/IoT asset management, Astra Live Twin read-only network digital twin streaming, Forward Networks digital twin, Ollama local LLM routing, an offline agentic RAG document knowledge base (cited answers from user-uploaded vendor guides and standards), layered Memory MCP, MemPalace persistent AI memory, and Lantronix Percepxion/SLC out-of-band console-server management (fleet-wide and direct single-device).
+A CCIE-level AI network engineering coworker. Built on [OpenClaw](https://github.com/openclaw/openclaw) with Anthropic Claude, 228 skills, and 173 MCP integrations for complete network automation with ITSM gating, source-of-truth reconciliation, immutable audit trails, gNMI streaming telemetry, NetFlow/IPFIX flow telemetry, Canvas/A2UI inline network visualizations, packet capture analysis, GitHub config-as-code, GitLab DevOps (issues, merge requests, pipelines, repositories, wikis), Jenkins CI/CD (job monitoring, build triggering, log analysis, SCM tracking), Chrome DevTools browser automation (visualization render QA, controller GUI gap-filling, undocumented API discovery, headless or watchable-headed), Computer Use full-desktop automation (legacy desktop-only tools with no browser or API path, virtual XFCE desktop with VNC/noVNC Watch Mode), Cisco CML lab simulation, ContainerLab containerized network labs, Cisco NSO orchestration, Cisco SD-WAN vManage monitoring, Grafana observability (dashboards, Prometheus, Loki, alerting, incidents), Prometheus direct PromQL monitoring, Kubeshark Kubernetes traffic analysis, Cisco Meraki Dashboard management, Cisco ThousandEyes network intelligence, AWS and Azure cloud networking, Cisco Secure Firewall policy auditing, Check Point Security (15 MCPs: policy, threat intel, gateway, SASE, malware), Itential network orchestration, Juniper JunOS device automation, Arista CloudVision Portal monitoring, F5 BIG-IP pyATS iControl REST coverage, Infoblox DDI, Palo Alto Panorama, FortiManager, Batfish offline configuration analysis, UML diagram generation, EVPN/VXLAN fabric workflows, live BGP/OSPF control-plane participation, OSPF/IS-IS link-state and BGP topology analysis over stored Topolograph snapshots, nmap network scanning, gtrace path analysis and IP enrichment, Slack-native operations, Cisco WebEx-native operations, Microsoft 365 integration, Twilio voice/SMS, Twitter/X integration, Claroty OT/IoT asset management, Astra Live Twin read-only network digital twin streaming, Forward Networks digital twin, Ollama local LLM routing, an offline agentic RAG document knowledge base (cited answers from user-uploaded vendor guides and standards), layered Memory MCP, MemPalace persistent AI memory, and Lantronix Percepxion/SLC out-of-band console-server management (fleet-wide and direct single-device).
 
 ## Resources
 
@@ -239,7 +239,7 @@ claw
   <img src="ui/netclaw-visual/logos/netclawvisualhud.png" alt="NetClaw Visual HUD — 3D Network Operations Dashboard" width="800">
 </p>
 
-NetClaw includes a Three.js 3D operations dashboard that computes its integration and skill inventory live from the codebase (currently 173 MCP integrations and 227 skills) each time it's opened, alongside your device fleet and live BGP peering topology — so the dashboard never drifts out of sync with what's actually installed. Chat with NetClaw directly from the browser, watch integrations light up as tools execute, and inspect every node in the graph. The Canvas/A2UI visualization skill renders inline topology maps, health dashboards, alert cards, change timelines, config diffs, path traces, and health scorecards directly in the chat interface.
+NetClaw includes a Three.js 3D operations dashboard that computes its integration and skill inventory live from the codebase (currently 173 MCP integrations and 228 skills) each time it's opened, alongside your device fleet and live BGP peering topology — so the dashboard never drifts out of sync with what's actually installed. Chat with NetClaw directly from the browser, watch integrations light up as tools execute, and inspect every node in the graph. The Canvas/A2UI visualization skill renders inline topology maps, health dashboards, alert cards, change timelines, config diffs, path traces, and health scorecards directly in the chat interface.
 
 ```bash
 cd ui/netclaw-visual
@@ -290,6 +290,7 @@ NetClaw is an autonomous network engineering agent powered by Claude that can:
 - **Alert** via Slack — severity-formatted notifications, incident workflows, and user-aware routing
 - **Alert** via Cisco WebEx — Adaptive Card-formatted notifications with interactive incident management buttons, threaded investigation, user-aware escalation via People API, and voice responses
 - **Diagram** your network with Draw.io topology maps (color-coded by reconciliation status)
+- **Document** your topology as a validated, re-syncable Topology Dojo document — re-synced in place on every discovery, rendered once per page, shared by link or proposed into a shared workspace only after confirmation (hosted API key or local clone)
 - **Visualize** protocol hierarchies as interactive Markmap mind maps
 - **Render** inline Canvas/A2UI visualizations in chat — topology maps with health-colored nodes, real-time dashboards (CPU, memory, BGP, OSPF), severity-sorted alert cards, ServiceNow change request timelines, config/routing/ACL diffs, hop-by-hop path traces with ECMP and black hole detection, and aggregated health scorecards with drill-down
 - **Generate** UML and infrastructure diagrams via Kroki — 27+ types including network topology (nwdiag), rack layouts (rackdiag), packet headers (packetdiag), protocol state machines, sequence diagrams, C4 architecture, Mermaid, D2, Graphviz, ERD — output as SVG, PNG, PDF
@@ -487,6 +488,7 @@ Human (Slack / WebEx / WebChat) --> NetClaw (CCIE Agent on OpenClaw)
                                 |     MCP: Wikipedia       --> Technology context
                                 |     MCP: Markmap         --> Mind map visualizations
                                 |     MCP: Draw.io         --> Network topology diagrams
+                                |     MCP: Topology Dojo   --> Validated, re-syncable, shareable topology documents
                                 |     MCP: UML MCP         --> 27+ diagram types via Kroki
                                 |
                                 |-- COLLABORATION:
@@ -644,6 +646,7 @@ NetClaw ships with the full set of OpenClaw workspace markdown files. These are 
 | 132 | World Labs Marble | NetClaw-authored (`mcp-servers/worldlabs-marble-mcp`) | stdio (Python) | **AI-augmented fantastical topology viz** (spec 122) — thin, fully stateless proxy to World Labs' Marble world-generation API. Three tools: `generate_world` (the one credit-spending operation, guarded by a required `user_confirmed` argument), `check_generation_status`, `get_world` (durable fallback for an expired operation record). Runs standalone on Border, no federation member required. Explicitly decorative — reuses `topology-diagram-mcp`'s accurate diagram as the authoritative artifact, never a replacement for it |
 | 133 | Astra Live Twin MCP | Built-in (`astra-twin-mcp`) | stdio (Python) | Read-only live digital twin collector for lab topologies — validates lab allowlist at startup, polls pyATS MCP (`pyats_list_devices`, `pyats_run_show_command`) with no device-write capability, serves `get_snapshot` / `get_deltas` / `get_status` to drive continuous Three.js HUD updates |
 | 134 | Topolograph | [Vadims06/topolograph-mcp-server](https://github.com/Vadims06/topolograph-mcp-server) | HTTP (remote) | **OSPF/IS-IS link-state and BGP topology analysis, read-only** — reasons over the whole area's LSDB from a stored Topolograph snapshot: shortest/backup path, per-area nodes/edges with role flags, edge and node failure simulation, MPLS-TE/CSPF feasibility, a topology-change event timeline, plus BGP speakers/sessions/route search, VRF/VPN inventory, and BGP-to-IGP graph binding (27 read tools). Remote HTTP against the operator's own Topolograph instance (`TOPOLOGRAPH_MCP_URL`), bearer `TOPOLOGRAPH_API_TOKEN`. Not vendored — fronts an operator-run API developed upstream. The server runs `TOPOLOGRAPH_MCP_READ_ONLY=true`, so mutation tools (`upload_graph`, `*_lsp`) are absent from `tools/list`; NetClaw scopes further with `defenseclaw tool allow`. See [spec 119](specs/119-topolograph-mcp-onboarding/spec.md) (IGP) and [spec 120](specs/120-topolograph-bgp-mcp-onboarding/spec.md) (BGP) |
+| 135 | Topology Dojo | [robertsonc/topology-dojo](https://github.com/robertsonc/topology-dojo) | Remote HTTP (API key) or stdio (local clone) | **Validated, re-syncable, shareable topology documents** — the canonical Topology Snapshot from any discovery source becomes a private Topology Dojo draft that is re-synced in place by source identity (`upsert_by_source`), validated and laid out server-side, rendered once per page to SVG, and — only after explicit confirmation — shared by a 30-day public link or proposed into a shared workspace (`element.upsert`). Hosted mode is `url` + bearer `TOPOLOGY_DOJO_API_KEY` (user-minted at `/keys`, scoped per story); local mode runs an operator-supplied clone at `TOPOLOGY_DOJO_DIR` over stdio with no sharing or workspaces. Not vendored. See [spec 124](specs/124-topology-dojo-provider/spec.md) |
 ### Additional Server Notes
 
 All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.py`, except where noted below (HTTP/remote endpoints).
@@ -677,12 +680,13 @@ All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.p
 - **SuzieQ** — stdio (5 read-only tools for network state queries, assertions, summaries, unique value discovery, and path tracing across 20+ network tables via the SuzieQ REST API)
 - **GNS3** — FastMCP stdio (26 tools for GNS3 network lab management — projects, nodes, links, packet capture, and snapshots via REST API v3). No persistent connections, no port management
 - **RAG Knowledge Base** — FastMCP stdio (10 tools for the offline document knowledge base: multi-format ingestion via Slack/HUD/URL, hybrid dense+BM25 retrieval with local reranking and mandatory citations, HIIL-gated corpus management, opt-in secret-scrubbed snapshots). Data at `~/.openclaw/rag/`, fully offline after install, strictly separate from Memory MCP
+- **Topology Dojo** (`topology-dojo-mcp`) — remote HTTP endpoint (`TOPOLOGY_DOJO_MCP_URL`, default `https://topology-dojo.harnessed.cloud/mcp`) with a user-minted, per-GitHub-identity API key `TOPOLOGY_DOJO_API_KEY` (scopes: `author` implicit, `share`, `workspace`), or an operator-supplied local clone over stdio (`TOPOLOGY_DOJO_MODE=local`, `TOPOLOGY_DOJO_DIR`). Validated, re-syncable topology documents with sharing and workspace proposals gated by explicit confirmation (see [spec 124](specs/124-topology-dojo-provider/spec.md))
 - **Topolograph** (`topolograph-mcp`) — remote HTTP endpoint against the operator's own Topolograph instance (`TOPOLOGRAPH_MCP_URL`, default `https://topolograph.com/mcp`), bearer `TOPOLOGRAPH_API_TOKEN`. 27 read-only tools: 13 for OSPF/IS-IS link-state topology analysis over stored snapshots — path computation, failure simulation, MPLS-TE/CSPF, event timeline — plus 14 for BGP topology (speakers, sessions, route search, VRF/VPN inventory, BGP-to-IGP graph binding; requires Topolograph >= 2.69). Mutation tools are hidden server-side (`TOPOLOGRAPH_MCP_READ_ONLY=true`); the client allowlist is set with `defenseclaw tool allow` (see [spec 119](specs/119-topolograph-mcp-onboarding/spec.md), [spec 120](specs/120-topolograph-bgp-mcp-onboarding/spec.md))
 - **Zoom RTMS** (`zoom-rtms-mcp`) — FastMCP stdio, 9 tools (see [spec 118](specs/118-zoom-meeting-intelligence/spec.md)). Ingests live meeting transcript/chat/active-speaker/screen-share signals via Zoom's Realtime Media Streams (no Meeting SDK bot — Zoom reserves that for human participants), recognizes network-investigation questions with a deterministic extractor, and routes them into the existing Border/NCFED routing path via a new loopback-only `bgp/federation/zoom_channel.py` channel. Feeds a Zoom App side panel (avatar + live status + evidence) with an optional Layers API camera overlay. Pairs with the official Zoom Meetings MCP (remote/OAuth, historical meeting search) via the `zoom-meeting-context` skill. No new device-write approval mechanism — reuses NetClaw's existing gate unchanged for anything a meeting participant asks that would change configuration.
 
 ---
 
-## Skills (227)
+## Skills (228)
 
 ### pyATS Device Skills (9)
 
@@ -1053,7 +1057,7 @@ All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.p
 | **cloudflare-analytics** | Traffic analytics (6 tools): zone analytics, firewall events, origin analytics, cache analytics. Traffic analysis, performance review, and cache optimization workflows. |
 | **cloudflare-workers** | Edge compute (6 tools): list Workers, get logs, list KV namespaces, view Durable Objects. Workers inventory, log analysis, and edge compute review workflows. |
 
-### Reference & Utility Skills (9)
+### Reference & Utility Skills (14)
 
 | Skill | Tool Backend | Purpose |
 |-------|-------------|---------|
@@ -1063,6 +1067,7 @@ All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.p
 | **subnet-calculator** | [SubnetCalculator MCP](https://github.com/automateyournetwork/GeminiCLI_SubnetCalculator_Extension) | IPv4 + IPv6 subnet calculator — VLSM planning, wildcard masks, address classification, RFC 6164 /127 links |
 | **wikipedia-research** | [Wikipedia_MCP](https://github.com/automateyournetwork/Wikipedia_MCP) | Protocol history, standards evolution, technology context. 6 tools: search, summary, content, references, categories, exists check. |
 | **markmap-viz** | [markmap-mcp](https://github.com/automateyournetwork/markmap_mcp) (Node) | Interactive mind maps from markdown — OSPF area hierarchies, BGP peer trees, drift summaries |
+| **topology-dojo-diagram** | [robertsonc/topology-dojo](https://github.com/robertsonc/topology-dojo) (`topology-dojo-mcp`, remote HTTP + API key, or local clone over stdio) | Validated, re-syncable, shareable topology documents from any discovered topology (spec 124) — adapter scrubs credentials at every depth, converter emits the document plus `upsert_by_source`/`element.upsert` batches keyed by stable source identity, Sync Diff reports created/updated/unchanged/absent-at-source, one render per page, read-back persisted to `workspace/output/topology-dojo/`. Sharing (public 30 days) and workspace proposals require explicit confirmation after an internal-address scan; GAIT-recorded |
 | **drawio-diagram** | [@drawio/mcp](https://github.com/jgraph/drawio-mcp) (npx + [official skill-cli](https://github.com/jgraph/drawio-mcp/tree/main/skill-cli)) | Network topology diagrams — native `.drawio` files with CLI export (PNG/SVG/PDF with embedded XML), plus browser-based Mermaid/XML/CSV via MCP server. Color-coded by reconciliation status. |
 | **rfc-lookup** | [@mjpitz/mcp-rfc](https://github.com/mjpitz/mcp-rfc) (npx) | IETF RFC search, retrieval, and section extraction — BGP (4271), OSPF (2328), NTP (5905) |
 | **uml-diagram** | [UML MCP](https://github.com/antoinebou12/uml-mcp) (stdio) | 27+ UML/diagram types via Kroki — class, sequence, nwdiag, rackdiag, packetdiag, C4, Mermaid, D2, Graphviz, ERD, BPMN |
@@ -1158,7 +1163,7 @@ All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.p
 
 | Skill | Purpose |
 |-------|---------|
-| **browser-viz-verify** | Verify a NetClaw-generated visualization (three.js, canvas, drawio, UML, markmap) actually renders correctly — screenshot, console-error check, optional Lighthouse audit. Local files only, no external site |
+| **browser-viz-verify** | Verify a NetClaw-generated visualization (three.js, canvas, drawio, UML, markmap, Topology Dojo SVG) actually renders correctly — screenshot, console-error check, optional Lighthouse audit. Local files only, no external site |
 | **browser-gui-inspect** | Controller-agnostic browser automation — fill gaps in controller skills whose REST API lacks a GUI-only report, discover undocumented vendor APIs via network-request capture, and automate one-off interactions with web tools that have no API integration |
 
 ### Desktop Automation Skills (1)
@@ -1908,6 +1913,7 @@ pyats-topology
 --> CDP/LLDP/ARP/routing peer collection (pCall across fleet)
 --> NetBox cable reconciliation (documented / undocumented / missing)
 --> Draw.io diagram (color-coded by reconciliation status)
+--> Topology Dojo document (re-synced in place by source identity, validated, rendered once per page)
 --> Markmap mind map
 --> GAIT commit
 ```
@@ -2369,7 +2375,7 @@ netclaw/
 ├── MISSION01.md                          # Completed — core pyATS + 11 skills
 ├── MISSION02.md                          # Completed — full platform, 78 skills, 32 MCP
 ├── workspace/
-│   └── skills/                           # 227 skill definitions (source of truth)
+│   └── skills/                           # 228 skill definitions (source of truth)
 │       ├── pyats-network/                # Core device automation (8 MCP tools)
 │       ├── pyats-health-check/           # Health + NetBox cross-ref + pCall
 │       ├── pyats-routing/                # OSPF, BGP, EIGRP, IS-IS analysis
@@ -2413,6 +2419,7 @@ netclaw/
 │       ├── wikipedia-research/           # Protocol history & context
 │       ├── markmap-viz/                  # Mind map visualization
 │       ├── drawio-diagram/              # Draw.io network diagrams
+│       ├── topology-dojo-diagram/       # Topology Dojo re-syncable topology documents
 │       ├── uml-diagram/                 # 27+ UML/diagram types via Kroki
 │       ├── rfc-lookup/                   # IETF RFC search
 │       ├── github-ops/                  # GitHub issues, PRs, config-as-code

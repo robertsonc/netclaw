@@ -42,6 +42,7 @@ Compose with:
 
 - `canvas-network-viz` skill for inline Canvas / A2UI topology rendering
 - `drawio-` skill for exportable `.drawio` / SVG diagrams
+- `topology-dojo-diagram` skill for a validated, re-syncable topology document (share only after confirmation — OT address space is internal by definition)
 - `uml-` skill for nwdiag-style topology
 
 ## Workflow Examples

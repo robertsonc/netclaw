@@ -81,7 +81,7 @@ for the diagram, and the auto-appended Sources slide.
 - **Give every summary slide a `detail_ref`** pointing at the detail slide or the Sources slide. A bare
   summary claim gets a caveat, and rightly — an executive reading "everything is fine" deserves to know
   where that came from.
-- **Do not draw the diagram.** Run `drawio-diagram`, `markmap-viz`, `uml-diagram` or `threejs-network-viz`
+- **Do not draw the diagram.** Run `drawio-diagram`, `markmap-viz`, `uml-diagram`, `threejs-network-viz` or `topology-dojo-diagram`
   first, then pass its output path and `src`. A path outside the workspace output directory is refused.
 - Sources appear in a **visible box on the slide**, not in speaker notes — notes are invisible in
   presentation and print.
@@ -106,7 +106,7 @@ record.
 
 | Want to… | Use |
 |---|---|
-| Draw a diagram | `drawio-diagram`, `markmap-viz`, `uml-diagram`, `threejs-network-viz` — embedded here, never redrawn |
+| Draw a diagram | `drawio-diagram`, `markmap-viz`, `uml-diagram`, `threejs-network-viz`, `topology-dojo-diagram` (`.svg` artifact) — embedded here, never redrawn |
 | Read a document into the knowledge base | `rag-mcp` (feature 062) — it **reads** these formats, this **writes** them |
 | Create, update or close a change record | `servicenow-change-workflow` — this renders a document from one and writes no ticket |
 | Send the document | `slack-report-delivery`, `webex-report-delivery` — writing the file is in scope, sending it is a separate, outward-facing action |

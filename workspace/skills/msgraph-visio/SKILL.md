@@ -77,7 +77,7 @@ correct-by-construction and unproven.
 | Skill | How They Work Together |
 |-------|----------------------|
 | `msgraph-files` | Read-only inspection — prefer it whenever you are not writing |
-| `document-generation`, `drawio-diagram`, `uml-diagram` | Produce the file this publishes |
+| `document-generation`, `drawio-diagram`, `uml-diagram` | Produce the file this publishes (`topology-dojo-diagram` produces `.svg`, not `.vsdx` — route Visio deliverables to `drawio-diagram`) |
 | `gait-session-tracking` | Record every upload: path, filename, item id |
 
 ## Environment Variables

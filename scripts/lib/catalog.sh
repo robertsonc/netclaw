@@ -107,6 +107,7 @@ CATALOG=(
     "threejs-viz|Analysis & Diagrams|Three.js Network Viz|Browser-based 3D topology, no desktop app/GPU (optional Sketchfab real-stencil mode)"
     "comfyui-viz|Analysis & Diagrams|ComfyUI Topology Visualization|AI-generated stylized topology stills via a self-hosted ComfyUI instance"
     "worldlabs-marble|Analysis & Diagrams|World Labs Fantastical Topology Viz|Free themed prompt preview + (credits-spending, confirmation-gated) explorable 3D world generation via World Labs Marble (spec 122)"
+    "topology-dojo|Analysis & Diagrams|Topology Dojo|Validated, re-syncable, shareable topology documents — hosted (API key) or local clone (spec 124)"
     "chrome-devtools|Analysis & Diagrams|Chrome DevTools|Browser automation/inspection — visualization QA, controller GUI gap-fill, API discovery, Watch Mode (2 servers)"
     "computer-use|Analysis & Diagrams|Computer Use|Full-desktop automation for API-less/browser-less targets — Xvfb+XFCE virtual desktop, 17 actions, VNC Watch Mode (via ClawHub)"
 
@@ -153,20 +154,20 @@ catalog_has() {
 PROFILE_MINIMAL="pyats gait subnet-calc drawio-rfc"
 
 PROFILE_RECOMMENDED="bgp-intel pyats gait netbox servicenow nvd-cve subnet-calc wikipedia markmap \
-drawio-rfc uml packet-buddy nmap gtrace globalping suzieq batfish protocol n2n tts chrome-devtools rag-mcp document"
+drawio-rfc uml packet-buddy nmap gtrace globalping suzieq batfish protocol n2n tts chrome-devtools rag-mcp document topology-dojo"
 
 PROFILE_CISCO="pyats gait netbox servicenow aci ise catc meraki sdwan cml fmc \
 radkit te-community te-official nvd-cve cisco-psirt subnet-calc drawio-rfc uml packet-buddy"
 
 PROFILE_MULTIVENDOR="pyats junos anta arista-cvp aruba-cx f5 fortinet multivendor-cli netbox nautobot gait servicenow \
-fwrule subnet-calc drawio-rfc uml packet-buddy percepxion slc topolograph"
+fwrule subnet-calc drawio-rfc uml packet-buddy percepxion slc topolograph topology-dojo"
 
 PROFILE_CLOUD="aws azure gcp cloudflare terraform vault github gait drawio-rfc uml subnet-calc"
 
 PROFILE_SECURITY="ise fmc panorama fortinet bgp-intel checkpoint claroty zscaler nvd-cve cisco-psirt nmap \
 fwrule gait servicenow"
 
-PROFILE_LABS="cml containerlab batfish protocol peering n2n in2n-production suzieq gait subnet-calc drawio-rfc uml"
+PROFILE_LABS="cml containerlab batfish protocol peering n2n in2n-production suzieq gait subnet-calc drawio-rfc uml topology-dojo"
 
 PROFILE_OBSERVABILITY="grafana prometheus datadog splunk pagerduty te-community te-official \
 suzieq kubeshark gtrace globalping auvik gait zabbix k8s elastic anta"
