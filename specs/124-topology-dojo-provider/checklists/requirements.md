@@ -62,11 +62,18 @@ All eleven findings verified against primary sources and addressed in the artifa
 
 ## Open items carried into implementation
 
-- [ ] research R2/R7: the target deployment runs Topology Dojo with #247 (API keys) and #248
-      (`element.upsert`, sourced listings) merged and `API_KEYS_ENABLED` active — verified by T005;
-      hosted mode is unavailable until then, by design (no bridge fallback)
-- [ ] Topology Dojo license — requested in the PR (research R9); not a blocker for the hosted
-      mode or for the converter, a blocker for calling local mode a first-class install
+- [x] research R2/R7, upstream half: robertsonc/topology-dojo#248 (`element.upsert`, sourced
+      listings, `created`/`changed` outcomes) and #247 (API keys, Apache-2.0 LICENSE) are both
+      **merged to `main`** (2026-09-21). #247 went through four owner review rounds (read-only auth
+      path, DO-serialized owner index and cap, pending/confirm slots, retry-safe revoke, 20-char key
+      ids, marker-based reconciliation, DO-arbitrated purge tombstone); none of it changed the
+      registration shape NetClaw uses (`url` + `Bearer ${TOPOLOGY_DOJO_API_KEY}`)
+- [ ] research R2/R7, deployment half: production deploy of that `main`, staging UAT-MCP-04, and the
+      top-level `API_KEYS_ENABLED` flip are the operator's actions; T005 (hosted loop with a minted
+      key) runs after that. Hosted mode is unavailable until then, by design (no bridge fallback)
+- [x] Topology Dojo license — Apache-2.0 landed with #247 (research R9). The installer still never
+      clones or installs (T029 stays operator-supplied clone); an auto-clone branch is now
+      permissible as a follow-up, not required for this spec
 
 ## Gate results (T043, 2026-09-20, implementation session)
 
