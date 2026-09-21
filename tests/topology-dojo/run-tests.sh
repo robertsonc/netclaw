@@ -50,7 +50,7 @@ check "url + bearer by variable reference, no command/args" $?
 ! grep -qE '"Authorization"[^,]*Bearer (tdk_|[A-Za-z0-9]{16,})' "$CONFIG"
 check "no literal key in config (FR-011, SC-006)" $?
 
-! git -C "$REPO_ROOT" grep -qE 'tdk_[a-z0-9]{10}_[A-Za-z0-9_-]{43}' -- . 2>/dev/null
+! git -C "$REPO_ROOT" grep -qE 'tdk_[a-z0-9]{10,}_[A-Za-z0-9_-]{43}' -- . 2>/dev/null
 check "no literal tdk_ API key in any tracked file (SC-006)" $?
 
 [ ! -d "$REPO_ROOT/mcp-servers/topology-dojo" ] && [ ! -d "$REPO_ROOT/mcp-servers/topology-dojo-mcp" ]
