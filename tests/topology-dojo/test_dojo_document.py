@@ -9,6 +9,7 @@ from pathlib import Path
 
 from snapshot_adapter import adapt, load_overlay
 from dojo_document import (
+    summarize_results,
     DOCUMENT_KEYS,
     DRAFT_MAX_OPS,
     LINK_KEYS,
@@ -263,3 +264,22 @@ class TestCli(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSummarizeResults(unittest.TestCase):
+    def test_exact_counts_when_changed_is_present(self):
+        results = [
+            {"op": "upsert_by_source", "id": "a", "created": True, "changed": True},
+            {"op": "upsert_by_source", "id": "b", "created": False, "changed": True},
+            {"op": "upsert_by_source", "id": "c", "created": False, "changed": False},
+            {"op": "add_node", "id": "z"},
+        ]
+        self.assertEqual(summarize_results(results), {"created": 1, "updated": 1, "unchanged": 1})
+
+    def test_falls_back_when_an_older_deployment_omits_changed(self):
+        results = [
+            {"op": "upsert_by_source", "id": "a", "created": True},
+            {"op": "upsert_by_source", "id": "b", "created": False},
+        ]
+        self.assertEqual(summarize_results(results), {"created": 1, "updated": None, "unchanged": None})
+        self.assertEqual(summarize_results([]), {"created": 0, "updated": 0, "unchanged": 0})

@@ -344,6 +344,24 @@ def diff_sourced(listing: list[dict], adapted: AdaptedSnapshot) -> SyncDiff:
     return diff
 
 
+def summarize_results(results: list[dict]) -> dict[str, Optional[int]]:
+    """Created / updated / unchanged counts from ``edit_topology`` result rows.
+
+    ``created`` is authoritative for creations. ``changed`` (Topology Dojo proposal 0006, review
+    round 1) is false when an upsert was a logical no-op apart from ``source.fetchedAt``; when
+    every upsert row carries it, ``updated`` and ``unchanged`` are exact. When any row lacks it
+    (an older deployment), both are ``None`` and the caller falls back to the local Sync Diff.
+    Absent-at-source and ambiguous links never come from results; only the diff can see them.
+    """
+    upserts = [r for r in results if isinstance(r, dict) and r.get("op") == "upsert_by_source"]
+    created = sum(1 for r in upserts if r.get("created") is True)
+    if any(not isinstance(r.get("changed"), bool) for r in upserts):
+        return {"created": created, "updated": None, "unchanged": None}
+    updated = sum(1 for r in upserts if r.get("changed") is True and r.get("created") is not True)
+    unchanged = sum(1 for r in upserts if r.get("changed") is False)
+    return {"created": created, "updated": updated, "unchanged": unchanged}
+
+
 def count_created(results: list[dict]) -> int:
     """`created` per upsert op from an `edit_topology` result (Topology Dojo proposal 0006)."""
     return sum(1 for r in results if r.get("op") == "upsert_by_source" and r.get("created") is True)

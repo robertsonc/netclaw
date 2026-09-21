@@ -162,7 +162,11 @@ mode, refuse and offer the `.svg` and `.json` artifacts instead.
    and its `set` carries `type/x/y` (node) or `type/from/to` (link) so creation succeeds when
    nothing matches. Batches close at node boundaries, so no link ever precedes its endpoints.
    Every result row carries `created`; the created count is `count_created(results)` and must
-   equal `len(to_create)`. Updated and unchanged counts come from the diff.
+   equal `len(to_create)`. Rows from a current deployment also carry `changed` (false when the
+   upsert was a logical no-op apart from `source.fetchedAt`): then `summarize_results(results)`
+   gives exact updated and unchanged counts. When a row lacks `changed`, take updated and
+   unchanged from the diff instead. Absent-at-source and ambiguous links always come from the
+   diff; results cannot express them.
 5. **Absent at source.** Elements in the listing that the new snapshot no longer contains are
    reported as *absent at source*. They are never removed without confirmation. On an explicit
    "yes, remove them", `remove_element({topologyId, elementId, cascade: true})` per element.
@@ -236,7 +240,10 @@ Workspaces are multi-user documents with revisions, leases and proposals. This s
 7. `apply_workspace_changes` is used only when the operator states a live page lease is granted
    for this page and asks for a direct apply. Otherwise it is a proposal, always.
 8. On a conflict (the base revision moved), re-read `get_workspace_changes` from the old base,
-   re-diff, and retry once with the new revision. A second conflict is reported, not retried.
+   re-diff, and retry once with the new revision. A conflict target of the form
+   `page/<pageId>/source/<kind>/<system>/<kind>/<id>` means another revision bound that source
+   identity while the proposal waited; the re-diff turns the affected upserts into patches and
+   nothing is duplicated. A second conflict is reported, not retried.
 9. `create_checkpoint({workspaceId, name})` before a large proposal when the operator asks;
    `list_checkpoints` to show them.
 

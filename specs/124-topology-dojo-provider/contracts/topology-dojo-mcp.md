@@ -48,7 +48,7 @@ with text `Error: <message>`.
 | `list_topologies` | `{}` | hosted: find the existing draft whose title equals the stable document identity title |
 | `get_topology` | `{topologyId, sources: true, system?: <source_kind>, pageIndex?}` | the Sync Diff input: `{title, pageCount, pages: [{index, id, name, elements: [{id, kind, source, label?}]}]}` — sourced elements only, no geometry; `summary: true` returns counts only and is never used for the diff |
 | `get_topology` | `{topologyId}` | full read-back after the final validate/tidy pass — this is what is written to the `.json` artifact, and what the share scan walks |
-| `edit_topology` | `{topologyId, pageIndex, operations: [{op: "upsert_by_source", kind, source, set}, ...]}` | re-sync; ≤ 200 ops; atomic per call; result `{applied, results: [{op, id, pageIndex, created}]}` — `created` is authoritative for the created count; updated/unchanged come from the local Sync Diff |
+| `edit_topology` | `{topologyId, pageIndex, operations: [{op: "upsert_by_source", kind, source, set}, ...]}` | re-sync; ≤ 200 ops; atomic per call; result `{applied, results: [{op, id, pageIndex, created, changed}]}` — `created` is authoritative for the created count; `changed` (false for a no-op apart from `fetchedAt`) gives exact updated/unchanged when present, else they come from the local Sync Diff; absent-at-source always comes from the diff |
 | `remove_element` | `{topologyId, elementId, cascade: true}` | only after the engineer confirms removal of absent-at-source elements |
 | `set_legend` | `{topologyId, show: true, position: "br"}` | when any link carries reconciliation status |
 | `set_document_title` | `{topologyId, title}` | when the engineer renames |
