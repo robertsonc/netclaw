@@ -1,0 +1,18 @@
+{
+  "cable-101": {
+    "reconciliation": "DOCUMENTED",
+    "vlan": "10",
+    "bandwidth": "100G"
+  },
+  "cable-102": {
+    "reconciliation": "UNDOCUMENTED",
+    "bandwidth": "100G"
+  },
+  "cable-103": {
+    "reconciliation": "MISSING",
+    "transport": "fiber"
+  },
+  "cable-104": {
+    "reconciliation": "MISMATCH"
+  }
+}

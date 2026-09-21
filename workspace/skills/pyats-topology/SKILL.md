@@ -145,6 +145,7 @@ FHRP:
 
 After discovery, use this data to generate:
 - **Draw.io diagrams** (via drawio-diagram skill) — for formal network documentation
+- **Topology Dojo documents** (via topology-dojo-diagram skill) — for a validated diagram that is re-synced in place on every discovery and can be shared or co-edited after confirmation
 - **Markmap mind maps** (via markmap-viz skill) — for hierarchical protocol views
 - **NVD CVE audit** (via nvd-cve skill) — using discovered software versions
 

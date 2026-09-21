@@ -137,6 +137,7 @@ For the full list, see the [ContainerLab documentation](https://containerlab.dev
 - Use **gait-session-tracking** to record all lab operations in the audit trail
 - Use **markmap-viz** to visualize lab topologies as interactive mind maps
 - Use **drawio-diagram** for lab network diagrams
+- Use **topology-dojo-diagram** when the lab diagram should be re-synced as the topology changes or shared by link
 
 ## Important Rules
 

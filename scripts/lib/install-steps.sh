@@ -4404,3 +4404,76 @@ fi
 
 echo ""
 }
+
+# ── Topology Dojo (spec 124) ──────────────────────────────────
+component_install_topology_dojo() {
+log_step "Configuring Topology Dojo (validated, re-syncable topology documents)..."
+echo "  Source: https://github.com/robertsonc/topology-dojo"
+echo "  Hosted mode: remote HTTP with a user-minted API key — nothing to install."
+echo "  Local mode:  an operator-supplied clone over stdio — nothing is cloned or installed here."
+
+read -r -p "Enable Topology Dojo? [y/N] " enable_topology_dojo
+if [[ ! "$enable_topology_dojo" =~ ^[Yy]$ ]]; then
+    log_info "Skipping Topology Dojo"
+    echo ""
+    return 0
+fi
+
+local dojo_mode="${TOPOLOGY_DOJO_MODE:-hosted}"
+case "$dojo_mode" in
+    hosted)
+        # Registered from config/openclaw.json: url + "Authorization: Bearer ${TOPOLOGY_DOJO_API_KEY}".
+        # Same shape as Globalping/Topolograph — a credential check, not an install.
+        log_info "Hosted mode — registered from config/openclaw.json (TOPOLOGY_DOJO_MCP_URL, default https://topology-dojo.harnessed.cloud/mcp)"
+        if [ -z "${TOPOLOGY_DOJO_API_KEY:-}" ]; then
+            log_warn "TOPOLOGY_DOJO_API_KEY is not set — the MCP endpoint returns 401 without it."
+            log_info "  Sign in with GitHub and mint a key at <deployment>/keys"
+            log_info "  (default deployment: https://topology-dojo.harnessed.cloud/keys)."
+            log_info "  Scopes: 'author' is implicit; add 'share' to publish links, 'workspace' for proposals."
+            log_info "  The deployment must have API_KEYS_ENABLED; there is no other hosted credential path."
+        else
+            log_info "TOPOLOGY_DOJO_API_KEY present"
+        fi
+        ;;
+    local)
+        log_info "Local mode — operator-supplied clone at TOPOLOGY_DOJO_DIR"
+        if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
+            log_warn "node and npm are required for local mode — skipping (install Node.js >= 18 and re-run)."
+            echo ""
+            return 0
+        fi
+        local node_major
+        node_major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)"
+        if [ "${node_major:-0}" -lt 18 ]; then
+            log_warn "Node.js >= 18 required (found $(node --version 2>/dev/null)) — skipping local mode."
+            echo ""
+            return 0
+        fi
+        local dojo_dir="${TOPOLOGY_DOJO_DIR:-}"
+        # Never git clone or npm ci here: NetClaw does not redistribute or build the upstream
+        # project on the operator's behalf (research R9, FR-021). The operator pre-stages the clone.
+        if [ -z "$dojo_dir" ] || [ ! -f "$dojo_dir/package.json" ] || [ ! -d "$dojo_dir/node_modules" ]; then
+            log_warn "TOPOLOGY_DOJO_DIR is unset or incomplete (needs package.json and node_modules) — local mode not registered."
+            log_info "  Pre-stage it yourself (for an air-gapped host, copy the prepared directory over):"
+            log_info "    git clone https://github.com/robertsonc/topology-dojo.git <dir> && cd <dir> && npm ci"
+            log_info "    export TOPOLOGY_DOJO_DIR=<dir>   # then re-run this step"
+            echo ""
+            return 0
+        fi
+        if command -v openclaw &> /dev/null; then
+            openclaw mcp set topology-dojo-mcp "{\"command\":\"npm\",\"args\":[\"run\",\"--silent\",\"mcp\"],\"cwd\":\"$dojo_dir\"}" 2>/dev/null \
+                || log_warn "openclaw mcp set failed for topology-dojo-mcp"
+            log_info "Registered topology-dojo-mcp over stdio from $dojo_dir (no sharing, no workspaces in local mode)"
+        else
+            log_warn "openclaw not found — register manually: openclaw mcp set topology-dojo-mcp '{\"command\":\"npm\",\"args\":[\"run\",\"--silent\",\"mcp\"],\"cwd\":\"$dojo_dir\"}'"
+        fi
+        ;;
+    *)
+        log_warn "Unknown TOPOLOGY_DOJO_MODE='$dojo_mode' (expected hosted|local) — skipping."
+        ;;
+esac
+
+log_info ".env lines: TOPOLOGY_DOJO_API_KEY, TOPOLOGY_DOJO_MCP_URL, TOPOLOGY_DOJO_MODE, TOPOLOGY_DOJO_DIR (see .env.example, spec 124)"
+log_info "Allowlist note: 'defenseclaw tool allow' the sync/render tools; leave delete_topology blocked."
+echo ""
+}

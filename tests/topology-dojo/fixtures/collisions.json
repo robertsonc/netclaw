@@ -1,0 +1,158 @@
+{
+  "snapshot_id": "nautobot-20260920T120000000001",
+  "source_kind": "nautobot",
+  "source_label": "collide",
+  "created_at": "2026-09-20T12:00:00+00:00",
+  "devices": [
+    {
+      "hostname": "R1",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "e1",
+          "parent_hostname": "R1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "e2",
+          "parent_hostname": "R1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "X"
+      }
+    },
+    {
+      "hostname": "r1",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "e1",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "e2",
+          "parent_hostname": "r1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "X"
+      }
+    },
+    {
+      "hostname": "edge_1",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "e1",
+          "parent_hostname": "edge_1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "e2",
+          "parent_hostname": "edge_1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "X"
+      }
+    },
+    {
+      "hostname": "edge-1",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "e1",
+          "parent_hostname": "edge-1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "e2",
+          "parent_hostname": "edge-1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "X"
+      }
+    }
+  ],
+  "links": [
+    {
+      "link_id": "link-0",
+      "endpoint_a": {
+        "hostname": "R1",
+        "interface_name": "e1"
+      },
+      "endpoint_b": {
+        "hostname": "edge_1",
+        "interface_name": "e1"
+      },
+      "state": null,
+      "label": "R1:e1 <-> edge_1:e1"
+    },
+    {
+      "link_id": "link-1",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "e1"
+      },
+      "endpoint_b": {
+        "hostname": "edge-1",
+        "interface_name": "e1"
+      },
+      "state": null,
+      "label": "r1:e1 <-> edge-1:e1"
+    },
+    {
+      "link_id": "link-2",
+      "endpoint_a": {
+        "hostname": "R1",
+        "interface_name": "e2"
+      },
+      "endpoint_b": {
+        "hostname": "r1",
+        "interface_name": "e2"
+      },
+      "state": null,
+      "label": "R1:e2 <-> r1:e2"
+    },
+    {
+      "link_id": "link-3",
+      "endpoint_a": {
+        "hostname": "edge_1",
+        "interface_name": "e2"
+      },
+      "endpoint_b": {
+        "hostname": "edge-1",
+        "interface_name": "e2"
+      },
+      "state": null,
+      "label": "edge_1:e2 <-> edge-1:e2"
+    }
+  ]
+}

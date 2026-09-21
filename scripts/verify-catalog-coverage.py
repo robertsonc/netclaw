@@ -85,6 +85,9 @@ GROUPED_CONFIG_EXACT = {
     # Spec 096 (R12). Strips to "elasticsearch"; the catalog id is the shorter
     # "elastic", matching how the component is named for operators.
     "elasticsearch-mcp": "elastic",
+    # Spec 124. Strips to "topology-dojo" already; listed explicitly so the mapping is
+    # visible beside its siblings rather than relying on the suffix rule.
+    "topology-dojo-mcp": "topology-dojo",
 }
 
 # EXTERNAL_INTEGRATIONS names (from verify-inventory-counts.py) that this

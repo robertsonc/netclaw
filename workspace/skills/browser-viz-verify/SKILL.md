@@ -12,7 +12,7 @@ metadata:
 
 ## Purpose
 
-NetClaw ships several skills that generate browser-based visualization outputs — `threejs-network-viz`, `canvas-network-viz`, `drawio-diagram`, `uml-diagram`, `markmap-viz`. Until now, confirming that a generated file actually rendered correctly (no blank canvas, no JavaScript errors, no broken layout) required a human to manually open it in a browser. This skill closes that gap: it opens the file itself in a controlled, headless Chrome session, takes a screenshot, reads the console for errors, and optionally runs a Lighthouse audit — then reports a clear verdict.
+NetClaw ships several skills that generate browser-based visualization outputs — `threejs-network-viz`, `canvas-network-viz`, `drawio-diagram`, `uml-diagram`, `markmap-viz`, and the `.svg` artifacts of `topology-dojo-diagram`. Until now, confirming that a generated file actually rendered correctly (no blank canvas, no JavaScript errors, no broken layout) required a human to manually open it in a browser. This skill closes that gap: it opens the file itself in a controlled, headless Chrome session, takes a screenshot, reads the console for errors, and optionally runs a Lighthouse audit — then reports a clear verdict.
 
 This skill **never** navigates to a remote URL and **never** touches the persistent authenticated browser profile used by `browser-gui-inspect`. It only ever opens local `file://` paths. See `specs/048-chrome-devtools-browser-inspection/` for the full spec, research, and design behind this skill.
 
@@ -113,7 +113,7 @@ Tool: close_page
 
 ## Invoking from Other Skills
 
-`threejs-network-viz`, `canvas-network-viz`, `drawio-diagram`, `uml-diagram`, and `markmap-viz` should each call `browser-viz-verify` automatically immediately after writing their generated HTML file, passing the freshly written file's path. This turns "did it render?" from a question the operator has to answer manually into a QA step NetClaw answers itself, within the ~30-second budget described in the spec's success criteria (SC-001). If `browser-viz-verify` returns `rendered_with_errors` or `timed_out`, surface that to the operator alongside the generated file rather than silently reporting success.
+`threejs-network-viz`, `canvas-network-viz`, `drawio-diagram`, `uml-diagram`, `markmap-viz`, and `topology-dojo-diagram` (its rendered `.svg`) should each call `browser-viz-verify` automatically immediately after writing their generated HTML file, passing the freshly written file's path. This turns "did it render?" from a question the operator has to answer manually into a QA step NetClaw answers itself, within the ~30-second budget described in the spec's success criteria (SC-001). If `browser-viz-verify` returns `rendered_with_errors` or `timed_out`, surface that to the operator alongside the generated file rather than silently reporting success.
 
 ## Error Handling
 

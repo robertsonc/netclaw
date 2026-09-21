@@ -1,0 +1,234 @@
+{
+  "snapshot_id": "nautobot-20260920T120000000000",
+  "source_kind": "nautobot",
+  "source_label": "campus",
+  "created_at": "2026-09-20T12:00:00+00:00",
+  "devices": [
+    {
+      "hostname": "bos-rtr1",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "ge-0/0/0",
+          "parent_hostname": "bos-rtr1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "ge-0/0/1",
+          "parent_hostname": "bos-rtr1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "MX204",
+        "site": "Boston"
+      }
+    },
+    {
+      "hostname": "bos-sw1",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "ge-0/0/0",
+          "parent_hostname": "bos-sw1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "ge-0/0/1",
+          "parent_hostname": "bos-sw1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "EX4400",
+        "site": "Boston"
+      }
+    },
+    {
+      "hostname": "bos-ap1",
+      "role": "unclassified",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "bos-ap1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "AP45",
+        "site": "Boston"
+      }
+    },
+    {
+      "hostname": "pdx-rtr1",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "ge-0/0/0",
+          "parent_hostname": "pdx-rtr1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "ge-0/0/1",
+          "parent_hostname": "pdx-rtr1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "MX204",
+        "site": "Portland"
+      }
+    },
+    {
+      "hostname": "pdx-sw1",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "ge-0/0/0",
+          "parent_hostname": "pdx-sw1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "EX4400",
+        "site": "Portland"
+      }
+    },
+    {
+      "hostname": "pdx-host1",
+      "role": "client",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "pdx-host1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "",
+        "site": "Portland"
+      }
+    },
+    {
+      "hostname": "cloud-gw",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "ge-0/0/0",
+          "parent_hostname": "cloud-gw",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "vMX"
+      }
+    }
+  ],
+  "links": [
+    {
+      "link_id": "link-0",
+      "endpoint_a": {
+        "hostname": "bos-rtr1",
+        "interface_name": "ge-0/0/0"
+      },
+      "endpoint_b": {
+        "hostname": "bos-sw1",
+        "interface_name": "ge-0/0/0"
+      },
+      "state": null,
+      "label": "bos-rtr1:ge-0/0/0 <-> bos-sw1:ge-0/0/0"
+    },
+    {
+      "link_id": "link-1",
+      "endpoint_a": {
+        "hostname": "bos-sw1",
+        "interface_name": "ge-0/0/1"
+      },
+      "endpoint_b": {
+        "hostname": "bos-ap1",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "bos-sw1:ge-0/0/1 <-> bos-ap1:eth0"
+    },
+    {
+      "link_id": "link-2",
+      "endpoint_a": {
+        "hostname": "pdx-rtr1",
+        "interface_name": "ge-0/0/0"
+      },
+      "endpoint_b": {
+        "hostname": "pdx-sw1",
+        "interface_name": "ge-0/0/0"
+      },
+      "state": null,
+      "label": "pdx-rtr1:ge-0/0/0 <-> pdx-sw1:ge-0/0/0"
+    },
+    {
+      "link_id": "link-3",
+      "endpoint_a": {
+        "hostname": "pdx-sw1",
+        "interface_name": null
+      },
+      "endpoint_b": {
+        "hostname": "pdx-host1",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "pdx-sw1 <-> pdx-host1:eth0"
+    },
+    {
+      "link_id": "link-4",
+      "endpoint_a": {
+        "hostname": "bos-rtr1",
+        "interface_name": "ge-0/0/1"
+      },
+      "endpoint_b": {
+        "hostname": "pdx-rtr1",
+        "interface_name": "ge-0/0/1"
+      },
+      "state": null,
+      "label": "bos-rtr1:ge-0/0/1 <-> pdx-rtr1:ge-0/0/1"
+    },
+    {
+      "link_id": "link-5",
+      "endpoint_a": {
+        "hostname": "pdx-rtr1",
+        "interface_name": null
+      },
+      "endpoint_b": {
+        "hostname": "cloud-gw",
+        "interface_name": "ge-0/0/0"
+      },
+      "state": null,
+      "label": "pdx-rtr1 <-> cloud-gw:ge-0/0/0"
+    }
+  ]
+}

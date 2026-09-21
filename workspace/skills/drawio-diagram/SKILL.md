@@ -243,6 +243,7 @@ python3 $MCP_CALL "npx -y @drawio/mcp" open_drawio_mermaid '{"content":"graph LR
 | Mermaid syntax diagram | Browser | Mermaid conversion only via MCP |
 | Offline/air-gapped environment | Native File | No network needed |
 | Sharing a link to the diagram | Browser | Returns shareable URL |
+| Diagram must stay in sync with re-discovery, be validated, or be co-edited in a shared workspace | **`topology-dojo-diagram` instead** | Topology Dojo documents are re-synced in place by source identity, validated server-side and shareable/proposable after confirmation (spec 124); use draw.io when the deliverable is a `.drawio` file or bound for Confluence/Visio |
 
 ## Integration with Other Skills
 
@@ -251,3 +252,4 @@ python3 $MCP_CALL "npx -y @drawio/mcp" open_drawio_mermaid '{"content":"graph LR
 - Use **markmap-viz** for hierarchical views alongside Draw.io for topology views
 - Use **aci-fabric-audit** data to generate ACI fabric topology diagrams
 - Use **gait-session-tracking** to record diagram generation with source data references
+- Use **topology-dojo-diagram** when the diagram must be re-synced on every discovery, validated, shared by link or co-edited — keep draw.io for `.drawio`/Confluence/Visio deliverables

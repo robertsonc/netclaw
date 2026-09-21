@@ -1,0 +1,110 @@
+{
+  "snapshot_id": "gns3-20260920T120000000000",
+  "source_kind": "gns3",
+  "source_label": "parallel-links",
+  "created_at": "2026-09-20T12:00:00+00:00",
+  "devices": [
+    {
+      "hostname": "a",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "e1",
+          "parent_hostname": "a",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "e2",
+          "parent_hostname": "a",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "X"
+      }
+    },
+    {
+      "hostname": "b",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "e1",
+          "parent_hostname": "b",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "e2",
+          "parent_hostname": "b",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "X"
+      }
+    }
+  ],
+  "links": [
+    {
+      "link_id": "link-0",
+      "endpoint_a": {
+        "hostname": "a",
+        "interface_name": "e1"
+      },
+      "endpoint_b": {
+        "hostname": "b",
+        "interface_name": "e1"
+      },
+      "state": null,
+      "label": "a:e1 <-> b:e1"
+    },
+    {
+      "link_id": "gns3-link-7",
+      "endpoint_a": {
+        "hostname": "a",
+        "interface_name": null
+      },
+      "endpoint_b": {
+        "hostname": "b",
+        "interface_name": null
+      },
+      "state": null,
+      "label": "a <-> b"
+    },
+    {
+      "link_id": "link-2",
+      "endpoint_a": {
+        "hostname": "a",
+        "interface_name": null
+      },
+      "endpoint_b": {
+        "hostname": "b",
+        "interface_name": null
+      },
+      "state": null,
+      "label": "a <-> b"
+    },
+    {
+      "link_id": "link-3",
+      "endpoint_a": {
+        "hostname": "b",
+        "interface_name": null
+      },
+      "endpoint_b": {
+        "hostname": "a",
+        "interface_name": null
+      },
+      "state": null,
+      "label": "b <-> a"
+    }
+  ]
+}

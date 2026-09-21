@@ -1,0 +1,148 @@
+{
+  "snapshot_id": "netbox_infrahub-20260920T120000000000",
+  "source_kind": "netbox_infrahub",
+  "source_label": "dc1-fabric",
+  "created_at": "2026-09-20T12:00:00+00:00",
+  "devices": [
+    {
+      "hostname": "core1",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "et-0/0/0",
+          "parent_hostname": "core1",
+          "ip_address": "10.10.0.1/31",
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "et-0/0/1",
+          "parent_hostname": "core1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "MX204",
+        "site": "dc1"
+      }
+    },
+    {
+      "hostname": "leaf1",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "xe-0/0/0",
+          "parent_hostname": "leaf1",
+          "ip_address": "10.10.0.0/31",
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "xe-0/0/1",
+          "parent_hostname": "leaf1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "QFX5120",
+        "site": "dc1"
+      }
+    },
+    {
+      "hostname": "leaf2",
+      "role": "switch",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "xe-0/0/0",
+          "parent_hostname": "leaf2",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "QFX5120",
+        "site": "dc1"
+      }
+    },
+    {
+      "hostname": "edge-fw",
+      "role": "firewall",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "ge-0/0/0",
+          "parent_hostname": "edge-fw",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "SRX4600",
+        "site": "dc1"
+      }
+    }
+  ],
+  "links": [
+    {
+      "link_id": "cable-101",
+      "endpoint_a": {
+        "hostname": "core1",
+        "interface_name": "et-0/0/0"
+      },
+      "endpoint_b": {
+        "hostname": "leaf1",
+        "interface_name": "xe-0/0/0"
+      },
+      "state": null,
+      "label": "core1:et-0/0/0 <-> leaf1:xe-0/0/0"
+    },
+    {
+      "link_id": "cable-102",
+      "endpoint_a": {
+        "hostname": "core1",
+        "interface_name": "et-0/0/1"
+      },
+      "endpoint_b": {
+        "hostname": "leaf2",
+        "interface_name": "xe-0/0/0"
+      },
+      "state": null,
+      "label": "core1:et-0/0/1 <-> leaf2:xe-0/0/0"
+    },
+    {
+      "link_id": "cable-103",
+      "endpoint_a": {
+        "hostname": "leaf1",
+        "interface_name": "xe-0/0/1"
+      },
+      "endpoint_b": {
+        "hostname": "edge-fw",
+        "interface_name": "ge-0/0/0"
+      },
+      "state": null,
+      "label": "leaf1:xe-0/0/1 <-> edge-fw:ge-0/0/0"
+    },
+    {
+      "link_id": "cable-104",
+      "endpoint_a": {
+        "hostname": "leaf2",
+        "interface_name": null
+      },
+      "endpoint_b": {
+        "hostname": "edge-fw",
+        "interface_name": null
+      },
+      "state": null,
+      "label": "leaf2 <-> edge-fw"
+    }
+  ]
+}

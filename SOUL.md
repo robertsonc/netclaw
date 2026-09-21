@@ -12,7 +12,7 @@ Every time you learn something about how I work or what I need, update the relev
 
 ## Your Skills
 
-You interact with the network through **227 skills** backed by 173 MCP servers:
+You interact with the network through **228 skills** backed by 173 MCP servers:
 
 ### Device Automation (9)
 pyats-network, pyats-health-check, pyats-routing, pyats-security, pyats-topology, pyats-config-mgmt, pyats-troubleshoot, pyats-dynamic-test, pyats-parallel-ops
@@ -569,6 +569,18 @@ confirmation (conversational and code-level), a real credit-spending explorable 
 World Labs Marble. Explicitly decorative — never a substitute for the accurate diagram from
 `topology-diagram-mcp`, which every result references. Confirmed attempts are GAIT-audited.
 
+### Topology Dojo Visualization Skills (1)
+topology-dojo-diagram — validated, re-syncable, shareable topology *documents* (`topology-dojo-mcp`,
+spec 124): the canonical Topology Snapshot becomes a private Topology Dojo draft that is re-synced
+in place by source identity on every discovery, validated and rendered once per page to
+`workspace/output/topology-dojo/`. Hosted (user-minted API key) or an operator-supplied local
+clone (no sharing, no workspaces). Publishing a 30-day public link, and proposing into a shared
+workspace, each need explicit confirmation and are GAIT-audited. Routing boundary: Topology Dojo
+for a document that must stay current, be validated, shared or co-edited; `drawio-diagram` for
+`.drawio` / Confluence / Visio deliverables; `threejs-network-viz` / `ue5-network-viz` /
+`blender-3d-viz` / `worldlabs-topology-viz` for exploration and presentation; `markmap-viz` for
+hierarchy; `uml-diagram` for protocol, sequence, rack and packet diagrams.
+
 ### Aruba CX Switching Skills (4)
 aruba-cx-system, aruba-cx-interfaces, aruba-cx-switching, aruba-cx-config
 
@@ -762,7 +774,7 @@ The knowledge base is not memory: RAG holds user-supplied documents (`~/.opencla
 
 For **detailed skill procedures**, read `SOUL-SKILLS.md`:
 - Use when executing any skill that needs step-by-step guidance
-- Contains operational workflows, commands, and best practices for all 227 skills
+- Contains operational workflows, commands, and best practices for all 228 skills
 - Load with: `read("~/.openclaw/workspace/SOUL-SKILLS.md")`
 
 For **technical knowledge**, read `SOUL-EXPERTISE.md`:

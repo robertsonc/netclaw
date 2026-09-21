@@ -74,6 +74,7 @@ python3 $MCP_CALL "node $MARKMAP_MCP_SCRIPT" markmap_customize '{"markdown_conte
 - Use **pyats-topology** discovery data to map the network hierarchy
 - Use **netbox-reconcile** drift data to visualize discrepancies
 - Use alongside **drawio-diagram** — markmap for hierarchical views, Draw.io for topology views
+- Use **topology-dojo-diagram** when the topology view must be re-synced, validated or shared as a document
 
 ## Output
 

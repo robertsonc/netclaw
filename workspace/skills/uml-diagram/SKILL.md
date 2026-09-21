@@ -397,6 +397,9 @@ generate_uml(type="structurizr" or "c4plantuml") → C4 architecture views
 - Database schema diagrams (ERD, DBML)
 - Any diagram type supported by Kroki
 
+**When to use Topology Dojo (`topology-dojo-diagram`):**
+- A topology document that is re-synced on every discovery, validated server-side, shared by link or co-edited in a workspace
+
 **When to use Draw.io:**
 - Interactive topology editing
 - Native .drawio files for team collaboration

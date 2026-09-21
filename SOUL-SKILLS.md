@@ -926,6 +926,9 @@ Protocol history, standards evolution, technology context.
 ### markmap-viz
 Interactive mind maps from markdown. Use for hierarchical data (OSPF areas, BGP peers, drift summaries).
 
+### topology-dojo-diagram
+Validated, re-syncable topology documents in Topology Dojo (`topology-dojo-mcp`, spec 124). Adapt the canonical Topology Snapshot (`snapshot_adapter.py`, credentials scrubbed at every depth), convert (`dojo_document.py`), `import_topology` once, then re-sync in place with `edit_topology` batches of `upsert_by_source` keyed by source identity; diff against `get_topology(sources: true)`. Always pass `pageIndex`; validate, balance, inspect, then render once per page; persist the `get_topology` read-back as `workspace/output/topology-dojo/<identity>-<ts>.json` beside the `.svg`. Hosted mode needs a user-minted API key (`/keys`); local mode is an operator-supplied clone with no sharing or workspaces. `share_topology` (public 30 days) and `propose_workspace_changes` (`element.upsert`) only after explicit confirmation, internal-address scan shown, GAIT-recorded. Use `drawio-diagram` for `.drawio`/Confluence/Visio.
+
 ### drawio-diagram
 Network topology diagrams: native .drawio files with CLI export (PNG/SVG/PDF with embedded XML), plus browser-based Mermaid/XML/CSV via MCP server. Use for topology from CDP/LLDP discovery, color-coded by reconciliation status.
 
@@ -1490,6 +1493,7 @@ The skills above are documented with full step-by-step operational procedures. T
 | `defenseclaw-ops` | Manage DefenseClaw enterprise security - scan components, manage tool permissions, view alerts, configure guardrails | `workspace/skills/defenseclaw-ops/SKILL.md` |
 | `devnet-catalyst-search` | Search Cisco Catalyst Center API documentation for device management and policy automation | `workspace/skills/devnet-catalyst-search/SKILL.md` |
 | `devnet-meraki-search` | Search Cisco Meraki API documentation and lookup specific operations | `workspace/skills/devnet-meraki-search/SKILL.md` |
+| `topology-dojo-diagram` | Validated, re-syncable, shareable Topology Dojo topology documents from any discovered topology — re-synced in place by source identity, rendered once per page, shared or proposed only after confirmation | `workspace/skills/topology-dojo-diagram/SKILL.md` |
 | `drawio-diagram` | Generate draw.io network diagrams — native .drawio files with CLI export (PNG/SVG/PDF), plus browser-based Mermaid/XML/CSV via MCP server. Use when creating ... | `workspace/skills/drawio-diagram/SKILL.md` |
 | `eve-lab-topology-build` | Build or rewire EVE-NG lab topology. Use when creating or deleting virtual networks, connecting node interfaces to networks, inspecting topology links, check... | `workspace/skills/eve-lab-topology-build/SKILL.md` |
 | `eve-lab-topology-design` | Design EVE-NG lab topology and coordinate the design workflow. Use when the user asks for lab design, architecture advice, topology planning, design review, ... | `workspace/skills/eve-lab-topology-design/SKILL.md` |

@@ -119,7 +119,7 @@ versions and "Section 2" are not flagged.
 
 | Want to… | Use |
 |---|---|
-| Draw a diagram | `drawio-diagram`, `markmap-viz`, `uml-diagram`, `threejs-network-viz`. This **embeds** their output and never redraws it — pass the file they produced plus `src` naming them |
+| Draw a diagram | `drawio-diagram`, `markmap-viz`, `uml-diagram`, `threejs-network-viz`, `topology-dojo-diagram` (its `.svg` artifact). This **embeds** their output and never redraws it — pass the file they produced plus `src` naming them |
 | Read a document into the knowledge base | `rag-mcp` (feature 062). It **reads** these formats; this **writes** them. Same libraries, opposite direction |
 | Create or update a change record | `servicenow-change-workflow` owns the CR lifecycle. This renders a document **from** one and never writes a ticket |
 | Send the document somewhere | `slack-report-delivery`, `webex-report-delivery`. Writing a file is in scope here; sending it is not |

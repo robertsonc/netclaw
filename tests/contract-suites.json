@@ -574,6 +574,32 @@
         "reason": "greenness unverified; tests/test_gcf_serializer.py currently fails"
       },
       "timeout_seconds": 300
+    },
+    "topology-dojo": {
+      "kind": "shell",
+      "command": [
+        "bash",
+        "tests/topology-dojo/run-tests.sh"
+      ],
+      "environment": {
+        "path": null,
+        "requirements": [],
+        "packages": [],
+        "required_imports": [],
+        "prepend_path": false
+      },
+      "live": {
+        "mode": "all",
+        "env": [
+          "TOPOLOGY_DOJO_DIR"
+        ],
+        "command": [
+          "bash",
+          "tests/topology-dojo/live_local.sh"
+        ],
+        "description": "opt-in local stdio loop against the operator's own Topology Dojo clone (no network)"
+      },
+      "timeout_seconds": 180
     }
   }
 }

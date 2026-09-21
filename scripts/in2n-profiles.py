@@ -133,7 +133,8 @@ PROFILE_MATCHERS = {
     # ── UTILITIES: grouped, not split (interview: "maybe not utilities") ──
     "viz":      {"exact": ["threejs-network-viz", "ue5-network-viz", "blender-3d-viz",
                            "canvas-network-viz", "drawio-diagram", "markmap-viz",
-                           "uml-diagram", "digital-twin-preflight", "aws-architecture-diagram"],
+                           "uml-diagram", "digital-twin-preflight", "aws-architecture-diagram",
+                           "topology-dojo-diagram"],
                  "desc": "Visualization utility (Three.js/UE5/Blender/Canvas + diagrams)"},
 }
 

@@ -1,0 +1,173 @@
+{
+  "snapshot_id": "cml-20260920T120000000000",
+  "source_kind": "cml",
+  "source_label": "lab-pod-1",
+  "created_at": "2026-09-20T12:00:00+00:00",
+  "devices": [
+    {
+      "hostname": "r1",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi1",
+          "parent_hostname": "r1",
+          "ip_address": "10.1.1.1/30",
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi2",
+          "parent_hostname": "r1",
+          "ip_address": "10.1.2.1/24",
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C8000V",
+        "platform": "IOS-XE",
+        "serial": "ABC123"
+      }
+    },
+    {
+      "hostname": "r2",
+      "role": "router",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "Gi1",
+          "parent_hostname": "r2",
+          "ip_address": "10.1.1.2/30",
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi2",
+          "parent_hostname": "r2",
+          "ip_address": "10.2.1.1/24",
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "ISR4431",
+        "platform": "IOS-XE"
+      }
+    },
+    {
+      "hostname": "sw1",
+      "role": "switch",
+      "state": "degraded",
+      "interfaces": [
+        {
+          "name": "Gi0/1",
+          "parent_hostname": "sw1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        },
+        {
+          "name": "Gi0/2",
+          "parent_hostname": "sw1",
+          "ip_address": null,
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "C9300",
+        "platform": "IOS-XE"
+      }
+    },
+    {
+      "hostname": "fw1",
+      "role": "firewall",
+      "state": "healthy",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "fw1",
+          "ip_address": "10.1.2.254/24",
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": "FTD",
+        "snmp": "{'community': 'public', 'version': '2c'}"
+      }
+    },
+    {
+      "hostname": "host1",
+      "role": "client",
+      "state": "unknown",
+      "interfaces": [
+        {
+          "name": "eth0",
+          "parent_hostname": "host1",
+          "ip_address": "10.2.1.10/24",
+          "state": null,
+          "metadata": {}
+        }
+      ],
+      "metadata": {
+        "model": ""
+      }
+    }
+  ],
+  "links": [
+    {
+      "link_id": "cml-link-1",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "Gi1"
+      },
+      "endpoint_b": {
+        "hostname": "r2",
+        "interface_name": "Gi1"
+      },
+      "state": null,
+      "label": "r1:Gi1 <-> r2:Gi1"
+    },
+    {
+      "link_id": "link-1",
+      "endpoint_a": {
+        "hostname": "r1",
+        "interface_name": "Gi2"
+      },
+      "endpoint_b": {
+        "hostname": "sw1",
+        "interface_name": "Gi0/1"
+      },
+      "state": null,
+      "label": "r1:Gi2 <-> sw1:Gi0/1"
+    },
+    {
+      "link_id": "link-2",
+      "endpoint_a": {
+        "hostname": "sw1",
+        "interface_name": "Gi0/2"
+      },
+      "endpoint_b": {
+        "hostname": "fw1",
+        "interface_name": "eth0"
+      },
+      "state": "down",
+      "label": "sw1:Gi0/2 <-> fw1:eth0"
+    },
+    {
+      "link_id": "link-3",
+      "endpoint_a": {
+        "hostname": "r2",
+        "interface_name": "Gi2"
+      },
+      "endpoint_b": {
+        "hostname": "host1",
+        "interface_name": "eth0"
+      },
+      "state": null,
+      "label": "r2:Gi2 <-> host1:eth0"
+    }
+  ]
+}
