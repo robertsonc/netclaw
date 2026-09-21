@@ -25,7 +25,14 @@ from dojo_document import (
     build_upsert_batches,
     build_workspace_batches,
     count_created,
+    cross_site_links,
     diff_sourced,
+    find_latest_artifact,
+    artifact_filename,
+    identity_stem,
+    node_id,
+    page_plan,
+    UNASSIGNED,
 )
 
 FIX = Path(__file__).resolve().parent / "fixtures"
@@ -92,7 +99,7 @@ class TestBuildDocument(unittest.TestCase):
         doc = build_document(adapted("sites"))
         page = doc["pages"][0]
         self.assertEqual([z["label"] for z in page["zones"]], ["Boston", "Portland"])
-        self.assertEqual(sorted(page["zones"][0]["nodes"]), ["n-bos-ap1", "n-bos-rtr1", "n-bos-sw1"])
+        self.assertEqual(sorted(page["zones"][0]["nodes"]), sorted(node_id(h) for h in ("bos-ap1", "bos-rtr1", "bos-sw1")))
         split = build_document(adapted("sites"), split_by_site=True)
         self.assertEqual([p["name"] for p in split["pages"]], ["Boston", "Portland", "Unassigned"])
         self.assertEqual([n["label"] for n in split["pages"][2]["nodes"]], ["cloud-gw"])
@@ -200,11 +207,11 @@ class TestDiffSourced(unittest.TestCase):
         snap["links"] = [l for l in snap["links"] if removed["hostname"] not in (l["endpoint_a"]["hostname"], l["endpoint_b"]["hostname"])]
         d = diff_sourced(listing, adapt(snap))
         self.assertEqual(d.counts()["absent_at_source"], 2)  # the node and its link
-        self.assertIn("n-host1", [e["id"] for e in d.absent_at_source])
+        self.assertIn(node_id("host1"), [e["id"] for e in d.absent_at_source])
 
         relabelled = json.loads(json.dumps(listing))
         for row in relabelled:
-            if row["id"] == "n-r1":
+            if row["id"] == node_id("r1"):
                 row["label"] = "R1-old"
         d = diff_sourced(relabelled, base)
         self.assertEqual(d.counts()["to_update"], 1)
@@ -241,7 +248,13 @@ class TestCli(unittest.TestCase):
         snap = str(FIX / "small.json")
         ident = self.run_cli("identity", "--snapshot", snap)
         self.assertEqual(ident["document_identity"], "netclaw:cml:lab-pod-1")
-        self.assertTrue(ident["artifact_stem"].startswith("netclaw-cml-lab-pod-1-"))
+        self.assertEqual(ident["identity_stem"], "netclaw-cml-lab-pod-1")
+        self.assertEqual(ident["artifact_glob"], "netclaw-cml-lab-pod-1.*.json")
+        self.assertTrue(ident["artifact_json"].startswith("netclaw-cml-lab-pod-1.cml-20260920t120000000000."))
+        self.assertIsNone(ident["latest_artifact"])
+        plan = self.run_cli("pages", "--snapshot", str(FIX / "sites.json"), "--split-by-site")
+        self.assertEqual([p["name"] for p in plan["pages"]], ["Boston", "Portland", "Unassigned"])
+        self.assertEqual({(l["a"], l["b"]) for l in plan["cross_site_links"]}, {("bos-rtr1", "pdx-rtr1"), ("pdx-rtr1", "cloud-gw")})
         doc = self.run_cli("document", "--snapshot", snap)
         self.assertEqual(len(doc["pages"][0]["nodes"]), 5)
         batches = self.run_cli("upsert-batches", "--snapshot", snap, "--page-index", "0")
@@ -256,14 +269,31 @@ class TestCli(unittest.TestCase):
             listing_path.unlink()
         self.assertEqual(diff["counts"]["unchanged"], 9)
 
+    def test_cli_diff_is_page_scoped(self):
+        snap = str(FIX / "sites.json")
+        doc = self.run_cli("document", "--snapshot", snap, "--split-by-site")
+        listing = {"title": "x", "pageCount": 3,
+                   "pages": [{"index": i, "elements": listing_from({"pages": [pg]})} for i, pg in enumerate(doc["pages"])]}
+        listing_path = FIX.parent / "_listing.tmp.json"
+        listing_path.write_text(json.dumps(listing))
+        try:
+            proc = subprocess.run([sys.executable, str(SKILL / "dojo_document.py"), "diff", "--snapshot", snap,
+                                   "--listing", str(listing_path), "--site", "Boston"], capture_output=True, text=True, timeout=30)
+            self.assertEqual(proc.returncode, 2)  # several pages, no --page-index: refuse rather than mis-diff
+            self.assertIn("--page-index", proc.stderr)
+            bos = self.run_cli("diff", "--snapshot", snap, "--listing", str(listing_path), "--site", "Boston", "--page-index", "0")
+            self.assertEqual(bos["counts"], {"to_create": 0, "to_update": 0, "unchanged": 5, "absent_at_source": 0, "ambiguous_links": 0})
+            un = self.run_cli("diff", "--snapshot", snap, "--listing", str(listing_path), "--unassigned", "--page-index", "2")
+            self.assertEqual(un["counts"]["unchanged"], 1)
+            wrong = self.run_cli("diff", "--snapshot", snap, "--listing", str(listing_path), "--site", "Portland", "--page-index", "0")
+            self.assertEqual(wrong["counts"]["absent_at_source"], 5)  # Boston's listing against Portland's scope
+        finally:
+            listing_path.unlink()
+
     def test_cli_reports_failures(self):
         proc = subprocess.run([sys.executable, str(SKILL / "dojo_document.py"), "identity", "--snapshot", "/nonexistent.json"], capture_output=True, text=True, timeout=30)
         self.assertEqual(proc.returncode, 2)
         self.assertIn("FileNotFoundError", proc.stderr)
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 class TestSummarizeResults(unittest.TestCase):
@@ -283,3 +313,128 @@ class TestSummarizeResults(unittest.TestCase):
         ]
         self.assertEqual(summarize_results(results), {"created": 1, "updated": None, "unchanged": None})
         self.assertEqual(summarize_results([]), {"created": 0, "updated": 0, "unchanged": 0})
+
+
+class TestIdentityCollisions(unittest.TestCase):
+    """Review round 2: lossy slugs (finding 4) and lowercased source ids (finding 5)."""
+
+    def test_distinct_devices_keep_distinct_ids_and_exact_source_ids(self):
+        snap = fixture("collisions")
+        page = build_document(adapt(snap))["pages"][0]
+        self.assertEqual(len(page["nodes"]), 4)
+        self.assertEqual(len({n["id"] for n in page["nodes"]}), 4)
+        self.assertEqual(sorted(n["source"]["id"] for n in page["nodes"]), ["R1", "edge-1", "edge_1", "r1"])
+        self.assertEqual(len(page["links"]), 4)
+        self.assertEqual(len({l["id"] for l in page["links"]}), 4)
+        self.assertEqual(len({l["source"]["id"] for l in page["links"]}), 4)
+        for n in page["nodes"]:
+            self.assertRegex(n["id"], r"^n-[a-z0-9-]+-[0-9a-f]{6}$")
+
+    def test_ids_stable_across_discoveries_and_readable(self):
+        self.assertEqual(node_id("R1"), node_id("R1"))
+        self.assertNotEqual(node_id("R1"), node_id("r1"))
+        self.assertNotEqual(node_id("edge_1"), node_id("edge-1"))
+        self.assertTrue(node_id("bos-rtr1").startswith("n-bos-rtr1-"))
+
+    def test_diff_does_not_merge_case_variants(self):
+        base = adapt(fixture("collisions"))
+        listing = listing_from(build_document(base))
+        d = diff_sourced(listing, base)
+        self.assertEqual(d.counts()["unchanged"], 8)
+        only_upper = [row for row in listing if row["source"]["id"] != "r1" and "r1:" not in row["source"]["id"]]
+        d = diff_sourced(only_upper, base)
+        self.assertEqual({e["source"]["id"] for e in d.to_create if e["kind"] == "nodes"}, {"r1"})
+
+
+class TestMultiPageSync(unittest.TestCase):
+    """Review round 2, finding 2: split-by-site re-sync must be page-scoped end to end."""
+
+    def test_page_plan_and_cross_site_links(self):
+        base = adapted("sites")
+        self.assertEqual(page_plan(base, split_by_site=False), [{"index": 0, "id": "p-0", "name": "Topology", "site": None}])
+        plan = page_plan(base, split_by_site=True)
+        self.assertEqual([(p["index"], p["id"], p["site"]) for p in plan],
+                         [(0, "p-0", "Boston"), (1, "p-1", "Portland"), (2, "p-2", UNASSIGNED)])
+        cross = {(l.a, l.b) for l in cross_site_links(base)}
+        self.assertEqual(cross, {("bos-rtr1", "pdx-rtr1"), ("pdx-rtr1", "cloud-gw")})
+        doc = build_document(base, split_by_site=True)
+        drawn = {l["source"]["id"] for pg in doc["pages"] for l in pg["links"]}
+        for l in cross_site_links(base):
+            self.assertNotIn(l.identity, drawn)
+        self.assertEqual(sum(len(pg["links"]) for pg in doc["pages"]), 4)
+
+    def test_per_page_round_trip_after_a_change(self):
+        base = adapted("sites")
+        doc = build_document(base, split_by_site=True)
+        listings = {pg["site"]: listing_from({"pages": [doc["pages"][pg["index"]]]}) for pg in page_plan(base, split_by_site=True)}
+        for site, rows in listings.items():
+            d = diff_sourced(rows, base, site=site)
+            self.assertEqual(d.counts()["to_create"], 0, site)
+            self.assertEqual(d.counts()["absent_at_source"], 0, site)
+        # add a Boston switch and link it; nothing else changes
+        snap = fixture("sites")
+        snap["devices"].append({"hostname": "bos-sw2", "role": "switch", "state": None, "interfaces": [], "metadata": {"site": "Boston"}})
+        snap["links"].append({"link_id": None, "endpoint_a": {"hostname": "bos-sw1", "interface_name": "ge-0/0/2"},
+                              "endpoint_b": {"hostname": "bos-sw2", "interface_name": "ge-0/0/0"}, "state": None, "label": None})
+        changed = adapt(snap)
+        bos = diff_sourced(listings["Boston"], changed, site="Boston")
+        self.assertEqual({e["source"]["id"] for e in bos.to_create if e["kind"] == "nodes"}, {"bos-sw2"})
+        self.assertEqual(bos.counts()["to_create"], 2)
+        self.assertEqual(bos.counts()["absent_at_source"], 0)
+        for site in ("Portland", UNASSIGNED):
+            d = diff_sourced(listings[site], changed, site=site)
+            self.assertEqual(d.counts()["to_create"], 0, site)
+            self.assertEqual(d.counts()["absent_at_source"], 0, site)
+        # whole-snapshot diff of one page's listing is exactly the mistake the scope guards against
+        wrong = diff_sourced(listings["Boston"], changed)
+        self.assertGreater(wrong.counts()["to_create"], 2)
+
+    def test_batches_per_page_are_disjoint_and_cover_everything(self):
+        base = adapted("sites")
+        seen: list[str] = []
+        for pg in page_plan(base, split_by_site=True):
+            ops = [op for batch in build_upsert_batches(base, page_index=pg["index"], site=pg["site"]) for op in batch]
+            self.assertTrue(all(op["pageIndex"] == pg["index"] for op in ops), pg)
+            self.assertTrue(all(op["kind"] != "zone" for op in ops), pg)
+            seen.extend(op["source"]["id"] for op in ops)
+            ws = [op for batch in build_workspace_batches(base, page_id=pg["id"], site=pg["site"]) for op in batch]
+            self.assertEqual({op["pageId"] for op in ws}, {pg["id"]})
+            self.assertEqual(len(ws), len(ops))
+        self.assertEqual(len(seen), len(set(seen)))
+        self.assertEqual(len(seen), 7 + 4)  # every device, every intra-page link; cross-site links on no page
+
+
+class TestArtifactLookup(unittest.TestCase):
+    """Review round 2, finding 1: the local artifact lookup must key on identity, not snapshot id."""
+
+    def test_stem_ignores_snapshot_id_and_lookup_finds_prior_run(self):
+        import tempfile
+        a = adapted("small")
+        snap_b = fixture("small")
+        snap_b["snapshot_id"] = "cml-20260921T090000000000"
+        b = adapt(snap_b)
+        self.assertEqual(identity_stem(a), identity_stem(b))
+        name_a = artifact_filename(a, timestamp="20260920T120000Z")
+        name_b = artifact_filename(b, timestamp="20260921T090000Z")
+        self.assertNotEqual(name_a, name_b)
+        self.assertTrue(name_a.startswith("netclaw-cml-lab-pod-1.cml-20260920t120000000000.20260920T120000Z"))
+        self.assertTrue(artifact_filename(a, page="Boston", timestamp="t").endswith(".t.boston.json"))
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self.assertIsNone(find_latest_artifact(out, identity_stem(b)))
+            (out / name_a).write_text("{}")
+            (out / "netclaw-cml-lab.cml-x.20260922T000000Z.json").write_text("{}")  # sibling identity, later date
+            (out / "netclaw-cml-lab-pod-1.cml-x.20260919T000000Z.json").write_text("{}")  # older run
+            found = find_latest_artifact(out, identity_stem(b))
+            self.assertEqual(found.name, name_a)
+
+
+class TestWorkspaceHeadroom(unittest.TestCase):
+    def test_workspace_batches_stay_under_the_headroom_cap(self):
+        for batch in build_workspace_batches(adapted("large"), page_id="p-0"):
+            self.assertLessEqual(len(batch), WORKSPACE_MAX_OPS)
+            self.assertLessEqual(len(json.dumps(batch).encode("utf-8")), WORKSPACE_MAX_BYTES)
+
+
+if __name__ == "__main__":
+    unittest.main()

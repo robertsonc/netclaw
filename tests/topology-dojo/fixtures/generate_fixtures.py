@@ -190,5 +190,25 @@ def parallel():
     dump("parallel", sources.from_gns3(raw), "gns3-20260920T120000000000")
 
 
+def collisions():
+    """Hostnames that collide once lowercased or slugged (review round 2, findings 4 and 5)."""
+    raw = {
+        "source": "collide",
+        "devices": [
+            dev("R1", "router", "X", ifaces=[("e1", None), ("e2", None)]),
+            dev("r1", "router", "X", ifaces=[("e1", None), ("e2", None)]),
+            dev("edge_1", "switch", "X", ifaces=[("e1", None), ("e2", None)]),
+            dev("edge-1", "switch", "X", ifaces=[("e1", None), ("e2", None)]),
+        ],
+        "links": [
+            link("R1", "e1", "edge_1", "e1"),
+            link("r1", "e1", "edge-1", "e1"),
+            link("R1", "e2", "r1", "e2"),
+            link("edge_1", "e2", "edge-1", "e2"),
+        ],
+    }
+    dump("collisions", sources.from_nautobot(raw), "nautobot-20260920T120000000001")
+
+
 if __name__ == "__main__":
-    small(); reconciled(); large(); sites(); parallel()
+    small(); reconciled(); large(); sites(); parallel(); collisions()

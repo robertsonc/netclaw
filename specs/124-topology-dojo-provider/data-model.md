@@ -99,7 +99,7 @@ Rules:
 
 | Element | `system` | `kind` | `id` |
 |---|---|---|---|
-| node | `snapshot.source_kind` | `device` | hostname, lowercased |
+| node | `snapshot.source_kind` | `device` | hostname, exactly as the source reports it (`R1` ≠ `r1`) |
 | link | `snapshot.source_kind` | `link` | link identity (precedence above) |
 | zone | `snapshot.source_kind` | `site` or `vrf` | name |
 
@@ -110,13 +110,16 @@ Rules:
 | Mode | How the existing document is found |
 |---|---|
 | hosted | `list_topologies` → the entry whose title equals the adapted `title`; none → first import |
-| local | newest `workspace/output/topology-dojo/<document_identity>-*.json` → `import_topology` (`format: "topology-dojo"`) → then sync; none → first import |
+| local | newest `workspace/output/topology-dojo/<identity_stem>.*.json` (`identity_stem = slug(document_identity)`; artifacts are `<identity_stem>.<snapshot slug>.<UTC ts>[.<page>].<ext>`, ordered by the timestamp segment) → `import_topology` (`format: "topology-dojo"`) → then sync; none → first import |
 
 ## Sync Diff *(computed locally, before the batch)*
 
-Input: the sourced-element listing — `get_topology(sources: true, system: <source_kind>)` for a
-draft or `get_workspace_elements(sourcedOnly: true)` per affected workspace page (Topology Dojo
-proposal 0006; rows are `{id, kind, source, label?}`, no geometry) — and the adapted snapshot.
+Input: one page's sourced-element listing — `get_topology(sources: true, system: <source_kind>,
+pageIndex)` for a draft or `get_workspace_elements(sourcedOnly: true, pageId)` per affected
+workspace page (Topology Dojo proposal 0006; rows are `{id, kind, source, label?}`, no geometry)
+— and the adapted snapshot restricted to the same page scope (`site=None` for a single-page
+document, a site name or `UNASSIGNED` for a split-by-site page). A page listing diffed against the
+whole snapshot would report every other page's elements as `to_create`.
 
 | Output | Derivation |
 |---|---|

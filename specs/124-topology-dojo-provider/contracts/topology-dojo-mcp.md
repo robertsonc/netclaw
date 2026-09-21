@@ -115,12 +115,16 @@ Guarantees asserted by `tests/topology-dojo/test_snapshot_adapter.py`:
 
 ```python
 def build_document(adapted: AdaptedSnapshot, *, split_by_site: bool = False) -> dict   # Dojo Document (data-model.md)
-def build_upsert_batches(adapted: AdaptedSnapshot, *, page_index: int = 0,
-                         max_ops: int = 200, max_bytes: int | None = None) -> list[list[dict]]
-def diff_sourced(listing: list[dict], adapted: AdaptedSnapshot) -> SyncDiff   # input: {id, kind, source, label?} rows from get_topology(sources) or get_workspace_elements(sourcedOnly); output: to_create / to_update / unchanged / absent_at_source / ambiguous_links
-def build_workspace_batches(adapted: AdaptedSnapshot, *, page_id: str, max_ops: int = 250,
-                            max_bytes: int = 524288) -> list[list[dict]]   # element.upsert ops (kind is the plural collection name)
-def slug(text: str) -> str                                        # deterministic element-id component
+def page_plan(adapted: AdaptedSnapshot, *, split_by_site: bool) -> list[dict]   # [{index, id, name, site}] — the per-page loop
+def cross_site_links(adapted: AdaptedSnapshot) -> list[AdaptedLink]   # links a split-by-site document draws on no page
+def build_upsert_batches(adapted: AdaptedSnapshot, *, page_index: int = 0, site: str | None = None,
+                         max_ops: int = 200, max_bytes: int | None = None) -> list[list[dict]]   # ONE page
+def diff_sourced(listing: list[dict], adapted: AdaptedSnapshot, *, site: str | None = None) -> SyncDiff   # ONE page: {id, kind, source, label?} rows from get_topology(sources, pageIndex) or get_workspace_elements(sourcedOnly, pageId); site = None | site name | UNASSIGNED; output: to_create / to_update / unchanged / absent_at_source / ambiguous_links
+def build_workspace_batches(adapted: AdaptedSnapshot, *, page_id: str, site: str | None = None, max_ops: int = 250,
+                            max_bytes: int = 491520) -> list[list[dict]]   # element.upsert ops (kind plural); 480 KiB headroom under the 512 KiB limit
+def element_id(prefix: str, original: str) -> str                 # `<prefix>-<slug>-<6-hex sha1 of the exact original>`: readable, collision-proof, stable
+def identity_stem(adapted) -> str; artifact_filename(adapted, ext, *, page=None, timestamp=None) -> str; find_latest_artifact(output_dir, stem) -> Path | None
+def slug(text: str) -> str                                        # readable element-id component (lossy on its own — never the whole id)
 ROLE_TO_TYPE, STATE_TO_STATUS, RECONCILIATION_COLOR                # documented tables (research R4)
 ```
 
@@ -131,6 +135,16 @@ Guarantees asserted by `tests/topology-dojo/test_dojo_document.py`:
 - `diff_sourced` against a fixture listing: unchanged fixture → all `unchanged`; one added device
   → one `to_create`; one removed device → one `absent_at_source`; a changed label → one
   `to_update`; a geometry-only change → `unchanged` (the listing carries no geometry)
+- split-by-site round trip on the `sites` fixture: per-page listing + matching `site` scope →
+  nothing to create; a device added to Boston → creates only on Boston's page; batches per page
+  are disjoint, carry that page's index/id only, and together cover every device and intra-page
+  link; the two cross-site links are reported by `cross_site_links` and drawn on no page
+- `collisions` fixture (`R1`/`r1`, `edge_1`/`edge-1`): four distinct element ids, four exact
+  source ids, and the diff never merges case variants
+- artifact lookup: two snapshot ids → the same `identity_stem`, different filenames;
+  `find_latest_artifact` returns the newest by timestamp segment and ignores a later-dated
+  sibling identity (`netclaw-cml-lab` vs `netclaw-cml-lab-pod-1`)
+- every workspace batch ≤ 250 ops and ≤ 480 KiB serialized
 - `build_workspace_batches` emits only `element.upsert` ops, plural `kind`, the same source
   identities as the draft batches, and respects 250 ops / 512 KiB
 - every emitted field name is in the recorded projection of `src/pages/model.ts` /

@@ -75,16 +75,22 @@ directory over stdio. No network is needed at run time, so this is the air-gappe
 | authoring guidance / preferences | yes | no |
 | rate limits | 120 writes/min, 8 shares/5 min | none (size caps only) |
 
-In local mode, every session starts by re-importing the newest
-`workspace/output/topology-dojo/<document_identity>-*.json` artifact with `import_topology`
-(`format: "topology-dojo"`), then re-syncing against it. If the operator asks to share in local
+In local mode, every session starts by re-importing the newest prior artifact of the same
+identity — `identity --output-dir workspace/output/topology-dojo` prints it as `latest_artifact`
+(the newest `<identity_stem>.*.json`, whatever snapshot id it was written under) — with
+`import_topology` (`format: "topology-dojo"`), then re-syncing against it. If the operator asks to share in local
 mode, refuse and offer the `.svg` and `.json` artifacts instead.
 
 ## Rules that never bend
 
-1. **Page index is always explicit.** Every `edit_topology`, `balance_topology`,
-   `tidy_topology`, `inspect_render`, `render_svg` and `get_topology` call names its `pageIndex`
-   (0 for a single-page document). Never rely on a server default.
+1. **Page scope is always explicit.** Every page-scoped call — `edit_topology`,
+   `balance_topology`, `tidy_topology`, `inspect_render`, `render_svg`, and the sourced-element
+   listing `get_topology({sources: true, pageIndex})` — names its `pageIndex` (0 for a
+   single-page document); never rely on a server default. The two whole-document reads are the
+   opposite: the final read-back that becomes the `.json` artifact (Workflow 1 step 9) and the
+   pre-share scan (Workflow 3 step 2) call `get_topology({topologyId})` and MUST omit
+   `pageIndex`, because a page-scoped read-back drops the other pages from the artifact and a
+   page-scoped scan misses internal addresses on them.
 2. **Render once per page per sync.** Render only after the final validate/tidy pass; never
    render after every edit. `render_svg` output is capped at 2 MiB, `export_flipbook` at 6 MiB.
 3. **The artifact is the read-back document.** The `.json` written to
@@ -92,10 +98,21 @@ mode, refuse and offer the `.svg` and `.json` artifacts instead.
    edit, never the converter's pre-import object.
 4. **Locate documents by stable identity, never by snapshot id.** `document_identity` is
    `netclaw:<source_kind>:<slug(source_label)>` and does not change between discoveries; the
-   snapshot id changes every run.
-5. **Nothing leaves the account without a confirmation.** Sharing and workspace proposals are
+   snapshot id changes every run. Artifacts are named
+   `<identity_stem>.<snapshot slug>.<UTC timestamp>[.<page>].<ext>`: the stem is the identity
+   alone, the snapshot id is provenance inside the name, and the lookup pattern
+   `<identity_stem>.*.json` finds every prior run and no sibling identity.
+5. **Source ids are exact and element ids are collision-proof.** `source.id` is the canonical
+   hostname or link identity exactly as the source reports it (`R1` and `r1` are two devices).
+   Element ids are `<prefix>-<slug>-<6-hex hash of the exact original>`, so `edge_1` and
+   `edge-1` never share an id; the converter refuses to emit a page whose ids collide.
+6. **One page at a time.** A split-by-site document is synced page by page: listing, diff and
+   batches are all scoped to one page (`pages` prints the plan; `--site`/`--unassigned` scope
+   the converter). A link whose endpoints sit on different pages is drawn on no page and is
+   reported as a cross-site link, never silently dropped.
+7. **Nothing leaves the account without a confirmation.** Sharing and workspace proposals are
    the only outward actions, both gated below. Removal of elements is gated too.
-6. **Credentials never enter a document.** The adapter strips `password`, `passwd`, `secret`,
+8. **Credentials never enter a document.** The adapter strips `password`, `passwd`, `secret`,
    `credential(s)`, `api_key`, `apikey`, `token`, `running_config`, `startup_config`, `config`,
    `private_key` and `community` at any depth, including inside stringified nested metadata.
 
@@ -108,12 +125,16 @@ mode, refuse and offer the `.svg` and `.json` artifacts instead.
 
    ```bash
    SKILL=workspace/skills/topology-dojo-diagram
-   python3 $SKILL/dojo_document.py identity --snapshot snapshot.json          # document_identity + title + artifact_stem
+   python3 $SKILL/dojo_document.py identity --snapshot snapshot.json --output-dir workspace/output/topology-dojo
+   #   → document_identity, title, identity_stem, artifact_glob, artifact_json, latest_artifact
+   python3 $SKILL/dojo_document.py pages --snapshot snapshot.json [--split-by-site]
+   #   → the page plan {index, id, name, site} and the cross_site_links a split cannot draw
    python3 $SKILL/dojo_document.py document --snapshot snapshot.json [--overlay overlay.json] [--split-by-site] > document.json
    ```
 
    `--overlay` takes reconciliation rows keyed by `link_id` (from `netbox-reconcile` or
-   similar); `--split-by-site` makes one page per `metadata.site`.
+   similar); `--split-by-site` makes one page per `metadata.site` plus an `Unassigned` page
+   when some devices carry no site. Tell the operator about every cross-site link up front.
 3. **Consult the server once per session.** `describe_capabilities` confirms the built-in node
    and link types the converter targets still exist; `layout_guidelines` gives the grid and
    spacing constants the converter honours; hosted only, `get_authoring_guidance` returns at most
@@ -129,32 +150,42 @@ mode, refuse and offer the `.svg` and `.json` artifacts instead.
 7. **Inspect.** `inspect_render({topologyId, pageIndex})`; its summary counts go into the Sync
    Report.
 8. **Render once per page.** `render_svg({topologyId, pageIndex})` for each page.
-9. **Read back and persist.** `get_topology({topologyId})` (full) and write
-   `workspace/output/topology-dojo/<artifact_stem>-<UTC timestamp>.json` (the read-back
-   document) and `…-<page>.svg` (each render). Timestamped, never overwritten.
+9. **Read back and persist.** `get_topology({topologyId})` — the full document, no
+   `pageIndex` — and write it to `workspace/output/topology-dojo/<artifact_json>` (the
+   `identity` output: `<identity_stem>.<snapshot slug>.<UTC timestamp>.json`) and each render to
+   the same name with `.<page>.svg`. Timestamped, never overwritten.
 10. **Sync Report** to the operator: mode, document identity, topology id, pages, nodes and links
     created, validation verdict, artifact paths.
 
 ## Workflow 2 — Update an existing diagram (re-sync without duplicates)
 
 1. **Locate the document by stable identity.** Hosted: `list_topologies` and match the title
-   equal to the identity title. Local mode: re-import the newest `<artifact_stem>-*.json`
-   artifact first. If nothing matches, this is a first sync (Workflow 1).
-2. **Fetch the sourced-element listing**, not the full document:
+   equal to the identity title. Local mode: re-import `latest_artifact` from
+   `identity --output-dir …` first (the newest `<identity_stem>.*.json`; the snapshot id in the
+   name is irrelevant). If nothing matches, this is a first sync (Workflow 1).
+2. **Take the page plan** from `pages --snapshot snapshot.json [--split-by-site]` (the same
+   `--split-by-site` the document was built with) and run steps 3–5 **once per page**. A
+   single-page document has one iteration with `--page-index 0` and no scope flag; a
+   split-by-site document has one per site (`--site <name>`) plus `--unassigned` when the plan
+   lists it.
+3. **Fetch that page's sourced-element listing**, not the full document:
    `get_topology({topologyId, sources: true, system: <source_kind>, pageIndex})` returns
-   `{id, kind, source, label}` rows for the elements this source owns and nothing else.
-3. **Diff locally** (offline):
+   `{id, kind, source, label}` rows for the elements this source owns on that page and nothing
+   else.
+4. **Diff locally** (offline), with the same scope as the listing:
 
    ```bash
-   python3 $SKILL/dojo_document.py diff --snapshot snapshot.json --listing listing.json [--overlay overlay.json]
+   python3 $SKILL/dojo_document.py diff --snapshot snapshot.json --listing listing.json --page-index <i> [--site <name> | --unassigned] [--overlay overlay.json]
    ```
 
    The Sync Diff has `to_create`, `to_update`, `unchanged`, `absent_at_source` and
-   `ambiguous_links`. Elements owned by other systems are ignored.
-4. **Upsert in batches.**
+   `ambiguous_links`. Elements owned by other systems are ignored. Diffing one page's listing
+   without its scope reports every other page's elements as `to_create` and would duplicate
+   them on this page; the CLI refuses a multi-page listing without `--page-index`.
+5. **Upsert in batches**, scoped the same way:
 
    ```bash
-   python3 $SKILL/dojo_document.py upsert-batches --snapshot snapshot.json --page-index 0 [--overlay overlay.json]
+   python3 $SKILL/dojo_document.py upsert-batches --snapshot snapshot.json --page-index <i> [--site <name> | --unassigned] [--overlay overlay.json]
    ```
 
    One `edit_topology({topologyId, pageIndex, operations: <batch>})` call per batch of at most
@@ -167,14 +198,15 @@ mode, refuse and offer the `.svg` and `.json` artifacts instead.
    gives exact updated and unchanged counts. When a row lacks `changed`, take updated and
    unchanged from the diff instead. Absent-at-source and ambiguous links always come from the
    diff; results cannot express them.
-5. **Absent at source.** Elements in the listing that the new snapshot no longer contains are
+6. **Absent at source.** Elements in the listing that the new snapshot no longer contains are
    reported as *absent at source*. They are never removed without confirmation. On an explicit
    "yes, remove them", `remove_element({topologyId, elementId, cascade: true})` per element.
-6. **Ambiguous links.** Two or more interface-less links between the same pair fall back to an
+7. **Ambiguous links.** Two or more interface-less links between the same pair fall back to an
    ordinal identity and are listed under `ambiguous_links`; the report says so and asks for
    interface names at source.
-7. Validate → tidy → inspect → render once per page → read back → persist → Sync Report with
-   created / updated / unchanged / absent / ambiguous counts.
+8. Validate → tidy → inspect → render once per page → full read back (no `pageIndex`) →
+   persist → Sync Report with created / updated / unchanged / absent / ambiguous counts per page
+   and the cross-site links that are on no page.
 
 ### Reconciliation overlay and legend
 
@@ -188,7 +220,8 @@ A share link is **public for 30 days** to anyone holding the URL. This is the on
 publication this skill can make, so it is gated twice.
 
 1. Only when the operator asks to share. Confirm the key has `share_topology` in `tools/list`.
-2. `get_topology({topologyId})` (full) **immediately before** sharing, then scan it:
+2. `get_topology({topologyId})` — the full document, no `pageIndex` — **immediately before**
+   sharing, then scan it:
 
    ```bash
    python3 $SKILL/share_guard.py scan --document readback.json
@@ -221,15 +254,19 @@ Workspaces are multi-user documents with revisions, leases and proposals. This s
    `operationSchemaRevision`. Stop if `operationSchemaRevision < 2`: the deployment predates
    `element.upsert` and cannot take idempotent proposals.
 3. `describe_workspace_operations({})` once per `operationSchemaRevision` (cache it), to confirm
-   `element.upsert` and the limits (`maxOperations: 250`, `maxSerializedBytes: 524288`).
+   `element.upsert` and the limits (`maxOperations: 250`, `maxSerializedBytes: 524288`). The
+   converter closes a batch at 250 operations or 480 KiB of serialized operations, leaving
+   headroom under the 512 KiB limit for the request envelope and the server's own
+   normalization, which re-checks the size after it has expanded the operations.
 4. `get_workspace_changes({workspaceId, sinceRevision, detail: "summary"})` to see what moved
-   since the last sync, then `get_workspace_elements({workspaceId, pageId, sourcedOnly: true})`
-   for the affected page only, following `nextCursor` until exhausted. Diff it locally with the
-   same `diff` subcommand.
-5. Build the batches:
+   since the last sync, then, **for each affected page**,
+   `get_workspace_elements({workspaceId, pageId, sourcedOnly: true})`, following `nextCursor`
+   until exhausted. Diff each page's listing locally with the same `diff` subcommand and the
+   same page scope (`--site`/`--unassigned` for a split-by-site document).
+5. Build that page's batches, with the same scope:
 
    ```bash
-   python3 $SKILL/dojo_document.py workspace-batches --snapshot snapshot.json --page-id <pageId> [--overlay overlay.json]
+   python3 $SKILL/dojo_document.py workspace-batches --snapshot snapshot.json --page-id <pageId> [--site <name> | --unassigned] [--overlay overlay.json]
    ```
 
    Every operation is `{type: "element.upsert", pageId, kind: <plural>, source, element}`.

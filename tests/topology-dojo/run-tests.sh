@@ -88,6 +88,16 @@ echo
 echo "### Re-sync semantics (FR-004, FR-004a, FR-008a, FR-009) ###"
 grep -qF "document_identity\|document identity" "$SKILL" || grep -qi "stable identity" "$SKILL"
 check "locates documents by stable identity, never the snapshot id (FR-004a)" $?
+grep -qF "identity_stem" "$SKILL" && grep -qF "latest_artifact" "$SKILL"
+check "artifact lookup keys on identity_stem / latest_artifact, not a snapshot-derived stem" $?
+grep -qi "MUST omit" "$SKILL" && grep -qi "pre-share scan" "$SKILL"
+check "full read-back and pre-share scan omit pageIndex (whole document)" $?
+grep -qF -- "--site" "$SKILL" && grep -qF -- "--unassigned" "$SKILL" && grep -qi "once per page" "$SKILL"
+check "split-by-site re-sync is scoped page by page" $?
+grep -qi "cross-site link" "$SKILL"
+check "cross-site links are reported, never silently dropped" $?
+grep -qF "R1" "$SKILL" && grep -qF "edge_1" "$SKILL"
+check "source ids exact-case, element ids hashed (no slug/case merges)" $?
 grep -qi "absent at source" "$SKILL"
 check "reports absent-at-source and never removes without confirmation" $?
 grep -qF "created" "$SKILL" && grep -qi "summary.byType\|byType" "$SKILL"

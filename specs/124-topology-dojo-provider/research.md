@@ -149,7 +149,7 @@ rate-limit unit.
 
 **Decision** — element identity scheme:
 
-- node: `{system: <snapshot.source_kind>, kind: "device", id: <hostname lowercased>}`
+- node: `{system: <snapshot.source_kind>, kind: "device", id: <hostname, exact case>}` — every source NetClaw reads treats `R1` and `r1` as distinct devices, so the source id must too
 - link, in precedence order:
   1. `{system, kind: "link", id: <link_id>}` when the source supplied one — NetBox/Nautobot cable
      ids, CML/GNS3/containerlab link ids. A positional `link-<n>` from `sources.py:130` is treated
@@ -170,10 +170,12 @@ the skill always passes `pageIndex` and single-page documents are the default; m
 **Decision** — document identity. `snapshot_id` is minted from the wall clock on every discovery
 (`sources.py:57-58`), so a title that embeds it can never be found again. The document identity
 is `netclaw:<source_kind>:<slug(source_label)>`, carried as the document title
-(`NetClaw — <source_kind> — <source_label>`) and as the artifact filename stem. Hosted mode finds
-the existing draft with `list_topologies` by that title; local mode re-imports the newest
-`<identity>-*.json` artifact before syncing. `snapshot_id` and `created_at` are provenance only:
-they go into `source.fetchedAt`, the artifact filename suffix, and the GAIT record.
+(`NetClaw — <source_kind> — <source_label>`) and, slugged, as the artifact filename stem
+(`identity_stem`). Hosted mode finds the existing draft with `list_topologies` by that title;
+local mode re-imports the newest `<identity_stem>.*.json` artifact before syncing.
+`snapshot_id` and `created_at` are provenance only: they go into `source.fetchedAt`, the
+snapshot segment of the artifact name (`<identity_stem>.<snapshot slug>.<UTC ts>[.<page>].<ext>`,
+which the lookup never keys on), and the GAIT record.
 
 **Decision** — diff and counters (updated 2026-09-20 for Topology Dojo proposal 0006). The skill
 fetches the sourced-element listing — `get_topology(topologyId, sources: true, system:
@@ -240,7 +242,7 @@ QA report and is the recommended pre-render step (`src/mcp/README.md:118-140,335
 `docs/USER_GUIDE.md:641,1259`: "PNG is browser-only". draw.io XML export is browser-only too
 (`src/editor/drawio.ts`, wired in `src/main.ts:1084-1087`; no MCP tool).
 
-**Decision**: artifacts are `workspace/output/topology-dojo/<UTC-ts>-<slug>.json` and `.svg`
+**Decision**: artifacts are `workspace/output/topology-dojo/<identity_stem>.<snapshot>.<UTC-ts>.json` and `.<page>.svg`
 (spec 046's timestamped, never-overwritten convention), plus `.flipbook.html` when the document has
 more than one page. `browser-viz-verify` screenshots the SVG when a raster is required, exactly as
 it does for three.js output. `TOOLS.md:254-255` records that the draw.io CLI is unusable headlessly
